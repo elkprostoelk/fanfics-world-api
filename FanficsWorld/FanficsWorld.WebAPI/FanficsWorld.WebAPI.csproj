@@ -8,16 +8,18 @@
 
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="11.0.1" />
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="6.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="6.0.9" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.9">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.9" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.9" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.9" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.9" />
         <PackageReference Include="Serilog" Version="2.12.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="6.1.0-dev-00281" />
         <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
@@ -25,11 +27,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers" />
-    </ItemGroup>
-
-    <ItemGroup>
+      <ProjectReference Include="..\FanficsWorld.Common\FanficsWorld.Common.csproj" />
       <ProjectReference Include="..\FanficsWorld.DataAccess\FanficsWorld.DataAccess.csproj" />
+      <ProjectReference Include="..\FanficsWorld.Services\FanficsWorld.Services.csproj" />
     </ItemGroup>
 
 </Project>
