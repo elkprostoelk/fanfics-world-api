@@ -5,5 +5,6 @@ namespace FanficsWorld.DataAccess.Interfaces;
 
 public interface IUserRepository
 {
-    Task<IdentityResult> RegisterUserAsync(User user, string password);
+    Task<IdentityResult> RegisterUserAsync(User user, string password, string role);
+    Task<User> GetAsync(string login);
 }

@@ -11,4 +11,6 @@ public class RegisterUserDTO
     public ushort Age { get; set; }
     
     public string PhoneNumber { get; set; }
+    
+    public string Role { get; set; }
 }

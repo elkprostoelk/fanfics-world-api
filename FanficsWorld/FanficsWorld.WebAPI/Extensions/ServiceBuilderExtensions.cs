@@ -3,6 +3,8 @@ using FanficsWorld.DataAccess;
 using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.DataAccess.Repositories;
+using FanficsWorld.Services.Interfaces;
+using FanficsWorld.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +21,8 @@ public static class ServiceBuilderExtensions
             x.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddScoped<IUserService, UserService>();
         
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
     }
@@ -30,7 +34,6 @@ public static class ServiceBuilderExtensions
                 opts.Password.RequiredLength = 8;
                 opts.Password.RequireNonAlphanumeric = false;
                 opts.User.RequireUniqueEmail = true;
-                opts.SignIn.RequireConfirmedEmail = true;
             })
             .AddEntityFrameworkStores<FanficsDbContext>()
             .AddDefaultTokenProviders();
