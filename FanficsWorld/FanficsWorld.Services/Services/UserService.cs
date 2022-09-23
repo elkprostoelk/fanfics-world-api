@@ -55,12 +55,37 @@ public class UserService : IUserService
         try
         {
             var user = await _repository.GetAsync(loginUserDto.Login);
-            return user is not null ? new UserTokenDTO {Jwt = await GenerateTokenAsync(user)} : null;
+            if (user is null)
+            {
+                return null;
+            }
+            var passwordValid = await _userManager.CheckPasswordAsync(user, loginUserDto.Password);
+            return passwordValid ? new UserTokenDTO {Jwt = await GenerateTokenAsync(user)} : null;
         }
         catch (Exception e)
         {
             _logger.LogCritical(e, "An exception occured while executing the service");
             return null;
+        }
+    }
+
+    public async Task<bool> UserExistsAsync(string id) => 
+        await _userManager.FindByIdAsync(id) is not null;
+
+    public async Task<bool> ChangePasswordAsync(string id, ChangePasswordDTO changePasswordDto)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            var result =
+                await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword,
+                    changePasswordDto.NewPassword);
+            return result.Succeeded;
+        }
+        catch (Exception e)
+        {
+            _logger.LogCritical(e, "An exception occured while executing the service");
+            return false;
         }
     }
 

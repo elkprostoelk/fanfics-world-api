@@ -30,4 +30,18 @@ public class AuthController : ControllerBase
         var registered = await _userService.RegisterUserAsync(registerUserDto);
         return registered ? StatusCode(201) : Conflict();
     }
+
+    [Authorize]
+    [HttpPatch("change-password/{id}")]
+    public async Task<IActionResult> ChangePassword(string id, ChangePasswordDTO changePasswordDto)
+    {
+        var userExists = await _userService.UserExistsAsync(id);
+        if (!userExists)
+        {
+            return NotFound();
+        }
+
+        var changed = await _userService.ChangePasswordAsync(id, changePasswordDto);
+        return changed ? NoContent() : Conflict("Error while changing a password!");
+    }
 }
