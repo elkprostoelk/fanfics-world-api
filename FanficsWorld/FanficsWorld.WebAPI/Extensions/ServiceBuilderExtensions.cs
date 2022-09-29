@@ -31,6 +31,7 @@ public static class ServiceBuilderExtensions
         services.AddValidatorsFromAssemblyContaining<LoginUserDtoValidator>();
         
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        services.AddRouting(options => options.LowercaseUrls = true);
     }
 
     public static void ConfigureIdentity(this IServiceCollection services)
