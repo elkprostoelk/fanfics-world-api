@@ -1,10 +1,14 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
+using FanficsWorld.Common.DTO;
 using FanficsWorld.DataAccess;
 using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.DataAccess.Repositories;
 using FanficsWorld.Services.Interfaces;
 using FanficsWorld.Services.Services;
+using FanficsWorld.WebAPI.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,10 +23,12 @@ public static class ServiceBuilderExtensions
     {
         services.AddDbContext<FanficsDbContext>(x =>
             x.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-
+        
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddScoped<IUserService, UserService>();
+
+        services.AddValidatorsFromAssemblyContaining<LoginUserDtoValidator>();
         
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
     }

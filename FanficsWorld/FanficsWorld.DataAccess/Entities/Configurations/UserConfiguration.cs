@@ -15,6 +15,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.RegistrationDate)
             .IsRequired()
-            .HasDefaultValue(DateTime.Now);
+            .HasDefaultValueSql("GETDATE()");
+
+        builder.Property(u => u.PhoneNumber)
+            .HasMaxLength(20);
+        
+        builder.Property(u => u.UserName)
+            .HasMaxLength(20);
     }
 }
