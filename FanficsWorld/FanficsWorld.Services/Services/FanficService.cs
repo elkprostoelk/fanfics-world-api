@@ -3,6 +3,7 @@ using FanficsWorld.Common.DTO;
 using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
+using Ganss.XSS;
 using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.Services.Services;
@@ -13,17 +14,20 @@ public class FanficService : IFanficService
     private readonly ILogger<FanficService> _logger;
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
+    private readonly IHtmlSanitizer _sanitizer;
 
     public FanficService(
         IFanficRepository repository,
         ILogger<FanficService> logger,
         IMapper mapper,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        IHtmlSanitizer sanitizer)
     {
         _repository = repository;
         _logger = logger;
         _mapper = mapper;
         _userRepository = userRepository;
+        _sanitizer = sanitizer;
     }
 
     public async Task<FanficDTO?> GetByIdAsync(long id)
@@ -44,9 +48,9 @@ public class FanficService : IFanficService
     {
         var fanfic = new Fanfic
         {
-            Title = newFanficDto.Title,
-            Annotation = newFanficDto.Annotation,
-            Text = newFanficDto.Text,
+            Title = _sanitizer.Sanitize(newFanficDto.Title),
+            Annotation = _sanitizer.Sanitize(newFanficDto.Annotation),
+            Text = _sanitizer.Sanitize(newFanficDto.Text),
             AuthorId = userId,
             Coauthors = newFanficDto.CoauthorIds is not null
                 ? await _userRepository.GetRangeAsync(newFanficDto.CoauthorIds)

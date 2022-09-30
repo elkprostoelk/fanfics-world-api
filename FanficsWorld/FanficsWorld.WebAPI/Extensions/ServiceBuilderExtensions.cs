@@ -9,6 +9,7 @@ using FanficsWorld.Services.Interfaces;
 using FanficsWorld.Services.Services;
 using FanficsWorld.WebAPI.Validators;
 using FluentValidation;
+using Ganss.XSS;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,7 @@ public static class ServiceBuilderExtensions
         services.AddScoped<IFanficService, FanficService>();
 
         services.AddValidatorsFromAssemblyContaining<LoginUserDtoValidator>();
-        
+        services.AddSingleton<IHtmlSanitizer>(_ => new HtmlSanitizer());
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         services.AddRouting(options => options.LowercaseUrls = true);
     }
