@@ -7,6 +7,8 @@ public class FanficConfiguration : IEntityTypeConfiguration<Fanfic>
 {
     public void Configure(EntityTypeBuilder<Fanfic> builder)
     {
+        builder.ToTable("Fanfics");
+        
         builder.HasKey(f => f.Id);
 
         builder.Property(f => f.Title)
@@ -18,10 +20,7 @@ public class FanficConfiguration : IEntityTypeConfiguration<Fanfic>
 
         builder.Property(f => f.CreatedDate)
             .IsRequired()
-            .ValueGeneratedOnAdd();
-
-        builder.Property(f => f.LastModified)
-            .ValueGeneratedOnUpdate();
+            .HasDefaultValueSql("GETDATE()");
 
         builder.HasOne(f => f.Author)
             .WithMany(u => u.Fanfics)

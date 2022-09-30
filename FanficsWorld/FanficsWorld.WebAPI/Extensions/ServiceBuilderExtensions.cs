@@ -25,8 +25,10 @@ public static class ServiceBuilderExtensions
             x.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
         
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IFanficRepository, FanficRepository>();
 
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IFanficService, FanficService>();
 
         services.AddValidatorsFromAssemblyContaining<LoginUserDtoValidator>();
         

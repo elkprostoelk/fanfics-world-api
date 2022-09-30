@@ -1,6 +1,7 @@
 ﻿using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.DataAccess.Repositories;
@@ -37,4 +38,7 @@ public class UserRepository : IUserRepository
 
     public async Task<User> GetAsync(string login) =>
         await _userManager.FindByNameAsync(login);
+
+    public async Task<ICollection<User>> GetRangeAsync(ICollection<string> coauthorIds) =>
+        await _userManager.Users.Where(u => coauthorIds.Contains(u.Id)).ToListAsync();
 }
