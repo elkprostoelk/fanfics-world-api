@@ -62,4 +62,18 @@ public class FanficService : IFanficService
             return false;
         }
     }
+
+    public async Task<bool> DeleteAsync(long id)
+    {
+        try
+        {
+            var fanfic = await _repository.GetAsync(id);
+            return fanfic is not null && await _repository.DeleteAsync(fanfic);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occured while executing the service");
+            return false;
+        }
+    }
 }

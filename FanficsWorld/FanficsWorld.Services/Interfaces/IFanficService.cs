@@ -6,4 +6,5 @@ public interface IFanficService
 {
     Task<FanficDTO?> GetByIdAsync(long id);
     Task<bool> CreateAsync(NewFanficDTO newFanficDto, string userId);
+    Task<bool> DeleteAsync(long id);
 }

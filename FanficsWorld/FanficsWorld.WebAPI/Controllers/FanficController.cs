@@ -50,4 +50,24 @@ public class FanficController : ControllerBase
         
         return created ? StatusCode(201) : Conflict();
     }
+
+    [Authorize]
+    [HttpDelete("{id:long}")]
+    public async Task<IActionResult> DeleteFanficAsync(long id)
+    {
+        var fanfic = await _service.GetByIdAsync(id);
+        if (fanfic is null)
+        {
+            return NotFound();
+        }
+
+        if (fanfic.Author.Id != User.GetUserId() && !User.IsInRole("Admin"))
+        {
+            return StatusCode(403, "You cannot delete other user's fanfic!");
+        }
+
+        var deleted = await _service.DeleteAsync(id);
+        
+        return deleted ? NoContent() : Conflict();
+    }
 }

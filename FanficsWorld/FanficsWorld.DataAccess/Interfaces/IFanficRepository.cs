@@ -6,4 +6,5 @@ public interface IFanficRepository
 {
     Task<Fanfic?> GetAsync(long id);
     Task<bool> AddAsync(Fanfic fanfic);
+    Task<bool> DeleteAsync(Fanfic fanfic);
 }

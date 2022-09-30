@@ -25,4 +25,10 @@ public class FanficRepository : IFanficRepository
         await _context.Fanfics.AddAsync(fanfic);
         return await _context.SaveChangesAsync() > 0;
     }
+
+    public async Task<bool> DeleteAsync(Fanfic fanfic)
+    {
+        _context.Fanfics.Remove(fanfic);
+        return await _context.SaveChangesAsync() > 0;
+    }
 }
