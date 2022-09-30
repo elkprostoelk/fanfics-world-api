@@ -20,10 +20,6 @@ public class NewFanficDtoValidator : AbstractValidator<NewFanficDTO>
         RuleFor(dto => dto.Text)
             .NotEmpty().WithMessage("Fanfic text must be provided!");
 
-        RuleFor(dto => dto.AuthorId)
-            .MustAsync(async (id, cancellationToken) =>
-                await userManager.Users.AnyAsync(u => u.Id == id, cancellationToken));
-
         When(dto => dto.CoauthorIds is not null, () =>
         {
             RuleFor(dto => dto.CoauthorIds)

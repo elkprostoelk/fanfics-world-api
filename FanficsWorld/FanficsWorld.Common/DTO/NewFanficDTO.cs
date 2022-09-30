@@ -8,7 +8,5 @@ public class NewFanficDTO
 
     public string Text { get; set; }
     
-    public string AuthorId { get; set; }
-    
     public ICollection<string>? CoauthorIds { get; set; }
 }

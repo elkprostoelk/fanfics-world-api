@@ -40,14 +40,14 @@ public class FanficService : IFanficService
         }
     }
 
-    public async Task<bool> CreateAsync(NewFanficDTO newFanficDto)
+    public async Task<bool> CreateAsync(NewFanficDTO newFanficDto, string userId)
     {
         var fanfic = new Fanfic
         {
             Title = newFanficDto.Title,
             Annotation = newFanficDto.Annotation,
             Text = newFanficDto.Text,
-            AuthorId = newFanficDto.AuthorId,
+            AuthorId = userId,
             Coauthors = newFanficDto.CoauthorIds is not null
                 ? await _userRepository.GetRangeAsync(newFanficDto.CoauthorIds)
                 : null

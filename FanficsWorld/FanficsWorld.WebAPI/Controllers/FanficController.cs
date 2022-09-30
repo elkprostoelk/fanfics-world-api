@@ -39,18 +39,14 @@ public class FanficController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateFanficAsync(NewFanficDTO newFanficDto)
     {
-        if (User.GetUserId() != newFanficDto.AuthorId && !User.IsInRole("Admin"))
-        {
-            return StatusCode(403, "You cannot add a fanfic for the other user!");
-        }
         var validationResult = await _newFanficValidator.ValidateAsync(newFanficDto);
         if (!validationResult.IsValid)
         {
             validationResult.AddToModelState(ModelState);
             return BadRequest(ModelState);
         }
-
-        var created = await _service.CreateAsync(newFanficDto);
+        
+        var created = await _service.CreateAsync(newFanficDto, User.GetUserId());
         
         return created ? StatusCode(201) : Conflict();
     }
