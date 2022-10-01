@@ -1,4 +1,6 @@
-﻿namespace FanficsWorld.DataAccess.Entities;
+﻿using FanficsWorld.Common.Enums;
+
+namespace FanficsWorld.DataAccess.Entities;
 
 public class Fanfic
 {
@@ -13,6 +15,14 @@ public class Fanfic
     public DateTime CreatedDate { get; set; }
     
     public DateTime? LastModified { get; set; }
+    
+    public FanficOrigin Origin { get; set; }
+    
+    public FanficStatus Status { get; set; }
+    
+    public FanficRating Rating { get; set; }
+    
+    public FanficDirection Direction { get; set; }
     
     public string AuthorId { get; set; }
     

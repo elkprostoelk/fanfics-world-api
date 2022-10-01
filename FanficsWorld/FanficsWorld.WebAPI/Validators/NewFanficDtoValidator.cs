@@ -26,5 +26,17 @@ public class NewFanficDtoValidator : AbstractValidator<NewFanficDTO>
                 .Must(ids =>
                     ids.All(id => userManager.Users.Any(u => u.Id == id)));
         });
+
+        RuleFor(dto => dto.Direction)
+            .NotNull().WithMessage("You have to choose a fanfic direction!")
+            .IsInEnum();
+        
+        RuleFor(dto => dto.Origin)
+            .NotNull().WithMessage("You have to choose a fanfic origin!")
+            .IsInEnum();
+        
+        RuleFor(dto => dto.Rating)
+            .NotNull().WithMessage("You have to choose a fanfic rating!")
+            .IsInEnum();
     }
 }

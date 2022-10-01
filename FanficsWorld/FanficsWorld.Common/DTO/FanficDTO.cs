@@ -1,4 +1,6 @@
-﻿namespace FanficsWorld.Common.DTO;
+﻿using FanficsWorld.Common.Enums;
+
+namespace FanficsWorld.Common.DTO;
 
 public class FanficDTO
 {
@@ -13,6 +15,14 @@ public class FanficDTO
     public DateTime CreatedDate { get; set; }
     
     public DateTime? LastModified { get; set; }
+    
+    public FanficOrigin Origin { get; set; }
+    
+    public FanficStatus Status { get; set; }
+    
+    public FanficRating Rating { get; set; }
+    
+    public FanficDirection Direction { get; set; }
     
     public SimpleUserDTO Author { get; set; }
 

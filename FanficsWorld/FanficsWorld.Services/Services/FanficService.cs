@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FanficsWorld.Common.DTO;
+using FanficsWorld.Common.Enums;
 using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
@@ -51,6 +52,10 @@ public class FanficService : IFanficService
             Title = _sanitizer.Sanitize(newFanficDto.Title),
             Annotation = _sanitizer.Sanitize(newFanficDto.Annotation),
             Text = _sanitizer.Sanitize(newFanficDto.Text),
+            Direction = newFanficDto.Direction,
+            Origin = newFanficDto.Origin,
+            Rating = newFanficDto.Rating,
+            Status = FanficStatus.InProgress,
             AuthorId = userId,
             Coauthors = newFanficDto.CoauthorIds is not null
                 ? await _userRepository.GetRangeAsync(newFanficDto.CoauthorIds)
