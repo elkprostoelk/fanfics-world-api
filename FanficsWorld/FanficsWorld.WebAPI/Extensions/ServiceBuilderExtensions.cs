@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Text;
-using FanficsWorld.Common.DTO;
+﻿using System.Text;
 using FanficsWorld.DataAccess;
 using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
@@ -27,9 +25,11 @@ public static class ServiceBuilderExtensions
         
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IFanficRepository, FanficRepository>();
+        services.AddScoped<IFandomRepository, FandomRepository>();
 
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IFanficService, FanficService>();
+        services.AddScoped<IFandomService, FandomService>();
 
         services.AddValidatorsFromAssemblyContaining<LoginUserDtoValidator>();
         services.AddSingleton<IHtmlSanitizer>(_ => new HtmlSanitizer());

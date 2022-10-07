@@ -31,4 +31,8 @@ public class Fanfic
     public ICollection<User> Coauthors { get; set; } = new HashSet<User>();
 
     public ICollection<FanficCoauthor> FanficCoauthors { get; set; } = new HashSet<FanficCoauthor>();
+
+    public ICollection<Fandom> Fandoms { get; set; } = new HashSet<Fandom>();
+    
+    public ICollection<FanficFandom> FanficFandoms { get; set; } = new HashSet<FanficFandom>();
 }

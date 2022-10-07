@@ -16,19 +16,22 @@ public class FanficService : IFanficService
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
     private readonly IHtmlSanitizer _sanitizer;
+    private readonly IFandomRepository _fandomRepository;
 
     public FanficService(
         IFanficRepository repository,
         ILogger<FanficService> logger,
         IMapper mapper,
         IUserRepository userRepository,
-        IHtmlSanitizer sanitizer)
+        IHtmlSanitizer sanitizer,
+        IFandomRepository fandomRepository)
     {
         _repository = repository;
         _logger = logger;
         _mapper = mapper;
         _userRepository = userRepository;
         _sanitizer = sanitizer;
+        _fandomRepository = fandomRepository;
     }
 
     public async Task<FanficDTO?> GetByIdAsync(long id)
@@ -57,9 +60,8 @@ public class FanficService : IFanficService
             Rating = newFanficDto.Rating,
             Status = FanficStatus.InProgress,
             AuthorId = userId,
-            Coauthors = newFanficDto.CoauthorIds is not null
-                ? await _userRepository.GetRangeAsync(newFanficDto.CoauthorIds)
-                : null
+            Coauthors = await _userRepository.GetRangeAsync(newFanficDto.CoauthorIds ?? new List<string>()),
+            Fandoms = await _fandomRepository.GetRangeAsync(newFanficDto.FandomIds ?? new List<long>())
         };
         try
         {
