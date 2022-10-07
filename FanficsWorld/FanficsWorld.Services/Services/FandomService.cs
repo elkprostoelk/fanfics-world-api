@@ -23,17 +23,17 @@ public class FandomService : IFandomService
         _mapper = mapper;
     }
 
-    public async Task<ICollection<SimpleFandomDTO>> GetTop10FandomsAsync()
+    public async Task<ICollection<SimpleFandomDto>> GetTop10FandomsAsync()
     {
         try
         {
             var fandoms = await _repository.GetTop10Async();
-            return _mapper.Map<ICollection<SimpleFandomDTO>>(fandoms);
+            return _mapper.Map<ICollection<SimpleFandomDto>>(fandoms);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An error occured while executing the service");
-            return new List<SimpleFandomDTO>();
+            return new List<SimpleFandomDto>();
         }
     }
 

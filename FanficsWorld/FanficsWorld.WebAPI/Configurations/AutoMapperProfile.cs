@@ -8,19 +8,19 @@ public class AutoMapperProfile : Profile
 {
     public AutoMapperProfile()
     {
-        CreateMap<RegisterUserDTO, User>();
-        CreateMap<User, SimpleUserDTO>();
+        CreateMap<RegisterUserDto, User>();
+        CreateMap<User, SimpleUserDto>();
         
-        CreateMap<Fanfic, FanficDTO>()
+        CreateMap<Fanfic, FanficDto>()
             .ForMember(dto => dto.Coauthors,
                 opts => opts.MapFrom(f => f.Coauthors))
             .ForMember(dto => dto.Author,
                 opts => opts.MapFrom(f => f.Author));
 
-        CreateMap<Fandom, FandomDTO>()
+        CreateMap<Fandom, FandomDto>()
             .ForMember(dto => dto.Fanfics,
                 opts => opts.MapFrom(fdom => fdom.Fanfics));
-        CreateMap<Fandom, SimpleFandomDTO>();
+        CreateMap<Fandom, SimpleFandomDto>();
         CreateMap<NewFandomDto, Fandom>();
     }
 }

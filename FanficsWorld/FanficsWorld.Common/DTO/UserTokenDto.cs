@@ -1,6 +1,6 @@
 ﻿namespace FanficsWorld.Common.DTO;
 
-public class UserTokenDTO
+public class UserTokenDto
 {
     public string Jwt { get; set; }
 }

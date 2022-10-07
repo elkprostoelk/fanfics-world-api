@@ -4,6 +4,6 @@ namespace FanficsWorld.Services.Interfaces;
 
 public interface IFandomService
 {
-    Task<ICollection<SimpleFandomDTO>> GetTop10FandomsAsync();
+    Task<ICollection<SimpleFandomDto>> GetTop10FandomsAsync();
     Task<bool> CreateAsync(NewFandomDto newFandomDto);
 }

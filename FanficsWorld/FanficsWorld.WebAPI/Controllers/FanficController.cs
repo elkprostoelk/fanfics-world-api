@@ -13,11 +13,11 @@ namespace FanficsWorld.WebAPI.Controllers;
 public class FanficController : ControllerBase
 {
     private readonly IFanficService _service;
-    private readonly IValidator<NewFanficDTO> _newFanficValidator;
+    private readonly IValidator<NewFanficDto> _newFanficValidator;
 
     public FanficController(
         IFanficService service,
-        IValidator<NewFanficDTO> newFanficValidator)
+        IValidator<NewFanficDto> newFanficValidator)
     {
         _service = service;
         _newFanficValidator = newFanficValidator;
@@ -37,7 +37,7 @@ public class FanficController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> CreateFanficAsync(NewFanficDTO newFanficDto)
+    public async Task<IActionResult> CreateFanficAsync(NewFanficDto newFanficDto)
     {
         var validationResult = await _newFanficValidator.ValidateAsync(newFanficDto);
         if (!validationResult.IsValid)

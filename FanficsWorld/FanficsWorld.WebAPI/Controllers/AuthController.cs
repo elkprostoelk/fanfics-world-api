@@ -11,15 +11,15 @@ namespace FanficsWorld.WebAPI.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
-    private readonly IValidator<LoginUserDTO> _loginValidator;
-    private readonly IValidator<RegisterUserDTO> _registerValidator;
-    private readonly IValidator<ChangePasswordDTO> _changePasswordValidator;
+    private readonly IValidator<LoginUserDto> _loginValidator;
+    private readonly IValidator<RegisterUserDto> _registerValidator;
+    private readonly IValidator<ChangePasswordDto> _changePasswordValidator;
 
     public AuthController(
         IUserService userService,
-        IValidator<LoginUserDTO> loginValidator,
-        IValidator<RegisterUserDTO> registerValidator,
-        IValidator<ChangePasswordDTO> changePasswordValidator)
+        IValidator<LoginUserDto> loginValidator,
+        IValidator<RegisterUserDto> registerValidator,
+        IValidator<ChangePasswordDto> changePasswordValidator)
     {
         _userService = userService;
         _loginValidator = loginValidator;
@@ -28,7 +28,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginUserDTO loginUserDto)
+    public async Task<IActionResult> Login(LoginUserDto loginUserDto)
     {
         var validationResult = await _loginValidator.ValidateAsync(loginUserDto);
         if (!validationResult.IsValid)
@@ -42,7 +42,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterUser(RegisterUserDTO registerUserDto)
+    public async Task<IActionResult> RegisterUser(RegisterUserDto registerUserDto)
     {
         var validationResult = await _registerValidator.ValidateAsync(registerUserDto);
         if (!validationResult.IsValid)
@@ -57,7 +57,7 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPatch("change-password/{id}")]
-    public async Task<IActionResult> ChangePassword(string id, ChangePasswordDTO changePasswordDto)
+    public async Task<IActionResult> ChangePassword(string id, ChangePasswordDto changePasswordDto)
     {
         var validationResult = await _changePasswordValidator.ValidateAsync(changePasswordDto);
         if (!validationResult.IsValid)

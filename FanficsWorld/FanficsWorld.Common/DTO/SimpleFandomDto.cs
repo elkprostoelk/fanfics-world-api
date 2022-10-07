@@ -1,6 +1,6 @@
 ﻿namespace FanficsWorld.Common.DTO;
 
-public class SimpleFandomDTO
+public class SimpleFandomDto
 {
     public long Id { get; set; }
     

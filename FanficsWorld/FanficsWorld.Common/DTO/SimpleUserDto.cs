@@ -1,6 +1,6 @@
 ﻿namespace FanficsWorld.Common.DTO;
 
-public class SimpleUserDTO
+public class SimpleUserDto
 {
     public string Id { get; set; }
     

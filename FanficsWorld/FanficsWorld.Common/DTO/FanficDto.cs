@@ -2,7 +2,7 @@
 
 namespace FanficsWorld.Common.DTO;
 
-public class FanficDTO
+public class FanficDto
 {
     public long Id { get; set; }
     
@@ -24,9 +24,9 @@ public class FanficDTO
     
     public FanficDirection Direction { get; set; }
     
-    public SimpleUserDTO Author { get; set; }
+    public SimpleUserDto Author { get; set; }
 
-    public ICollection<SimpleUserDTO> Coauthors { get; set; }
+    public ICollection<SimpleUserDto> Coauthors { get; set; }
     
-    public ICollection<FandomDTO> Fandoms { get; set; }
+    public ICollection<FandomDto> Fandoms { get; set; }
 }

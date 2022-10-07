@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace FanficsWorld.WebAPI.Validators;
 
-public class RegisterUserDtoValidator : AbstractValidator<RegisterUserDTO>
+public class RegisterUserDtoValidator : AbstractValidator<RegisterUserDto>
 {
     public RegisterUserDtoValidator()
     {

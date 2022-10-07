@@ -2,7 +2,7 @@
 
 namespace FanficsWorld.Common.DTO;
 
-public class NewFanficDTO
+public class NewFanficDto
 {
     public string Title { get; set; }
     

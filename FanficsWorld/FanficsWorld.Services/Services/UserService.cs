@@ -35,7 +35,7 @@ public class UserService : IUserService
         _userManager = userManager;
     }
 
-    public async Task<bool> RegisterUserAsync(RegisterUserDTO registerUserDto)
+    public async Task<bool> RegisterUserAsync(RegisterUserDto registerUserDto)
     {
         var user = _mapper.Map<User>(registerUserDto);
         try
@@ -50,7 +50,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<UserTokenDTO> ValidateUserAsync(LoginUserDTO loginUserDto)
+    public async Task<UserTokenDto> ValidateUserAsync(LoginUserDto loginUserDto)
     {
         try
         {
@@ -60,7 +60,7 @@ public class UserService : IUserService
                 return null;
             }
             var passwordValid = await _userManager.CheckPasswordAsync(user, loginUserDto.Password);
-            return passwordValid ? new UserTokenDTO {Jwt = await GenerateTokenAsync(user)} : null;
+            return passwordValid ? new UserTokenDto {Jwt = await GenerateTokenAsync(user)} : null;
         }
         catch (Exception e)
         {
@@ -72,7 +72,7 @@ public class UserService : IUserService
     public async Task<bool> UserExistsAsync(string id) => 
         await _userManager.FindByIdAsync(id) is not null;
 
-    public async Task<bool> ChangePasswordAsync(string id, ChangePasswordDTO changePasswordDto)
+    public async Task<bool> ChangePasswordAsync(string id, ChangePasswordDto changePasswordDto)
     {
         try
         {

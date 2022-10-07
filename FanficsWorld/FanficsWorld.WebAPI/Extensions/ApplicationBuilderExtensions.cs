@@ -43,7 +43,7 @@ public static class ApplicationBuilderExtensions
             }
             if (await userManager.FindByEmailAsync("admin@admin.com") is null)
             {
-                var registered = await userService.RegisterUserAsync(new RegisterUserDTO
+                var registered = await userService.RegisterUserAsync(new RegisterUserDto
                 {
                     UserName = "admin",
                     Password = configuration.GetValue<string>("AdminPassword"),

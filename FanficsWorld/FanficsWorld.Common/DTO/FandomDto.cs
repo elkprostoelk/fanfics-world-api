@@ -1,10 +1,10 @@
 ﻿namespace FanficsWorld.Common.DTO;
 
-public class FandomDTO
+public class FandomDto
 {
     public long Id { get; set; }
     
     public string Title { get; set; }
 
-    public ICollection<FanficDTO> Fanfics { get; set; }
+    public ICollection<FanficDto> Fanfics { get; set; }
 }

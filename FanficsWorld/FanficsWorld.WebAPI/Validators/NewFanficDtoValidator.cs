@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.WebAPI.Validators;
 
-public class NewFanficDtoValidator : AbstractValidator<NewFanficDTO>
+public class NewFanficDtoValidator : AbstractValidator<NewFanficDto>
 {
     public NewFanficDtoValidator(UserManager<User> userManager)
     {

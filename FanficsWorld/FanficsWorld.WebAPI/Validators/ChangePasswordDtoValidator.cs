@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace FanficsWorld.WebAPI.Validators;
 
-public class ChangePasswordDtoValidator : AbstractValidator<ChangePasswordDTO>
+public class ChangePasswordDtoValidator : AbstractValidator<ChangePasswordDto>
 {
     public ChangePasswordDtoValidator()
     {

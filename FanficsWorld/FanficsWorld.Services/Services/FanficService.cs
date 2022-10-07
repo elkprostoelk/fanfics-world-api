@@ -34,12 +34,12 @@ public class FanficService : IFanficService
         _fandomRepository = fandomRepository;
     }
 
-    public async Task<FanficDTO?> GetByIdAsync(long id)
+    public async Task<FanficDto?> GetByIdAsync(long id)
     {
         try
         {
             var fanfic = await _repository.GetAsync(id);
-            return _mapper.Map<FanficDTO>(fanfic);
+            return _mapper.Map<FanficDto>(fanfic);
         }
         catch (Exception e)
         {
@@ -48,7 +48,7 @@ public class FanficService : IFanficService
         }
     }
 
-    public async Task<bool> CreateAsync(NewFanficDTO newFanficDto, string userId)
+    public async Task<bool> CreateAsync(NewFanficDto newFanficDto, string userId)
     {
         var fanfic = new Fanfic
         {

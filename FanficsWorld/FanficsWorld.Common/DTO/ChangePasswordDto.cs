@@ -1,6 +1,6 @@
 ﻿namespace FanficsWorld.Common.DTO;
 
-public class ChangePasswordDTO
+public class ChangePasswordDto
 {
     public string CurrentPassword { get; set; }
     
