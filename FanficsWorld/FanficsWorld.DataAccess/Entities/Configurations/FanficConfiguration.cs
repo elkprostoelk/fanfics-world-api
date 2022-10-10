@@ -59,5 +59,22 @@ public class FanficConfiguration : IEntityTypeConfiguration<Fanfic>
                     ffBuilder.HasKey(ff => new {ff.FandomId, ff.FanficId});
                     ffBuilder.ToTable("FanficFandoms");
                 });
+
+        builder.HasMany(ffic => ffic.Tags)
+            .WithMany(t => t.Fanfics)
+            .UsingEntity<FanficTag>(
+                ftBuilder =>
+                    ftBuilder.HasOne(ft => ft.Tag)
+                    .WithMany(t => t.FanficTags)
+                    .HasForeignKey(ft => ft.TagId),
+                ftBuilder =>
+                    ftBuilder.HasOne(ft => ft.Fanfic)
+                    .WithMany(ffic => ffic.FanficTags)
+                    .HasForeignKey(ft => ft.FanficId),
+                ftBuilder =>
+                {
+                    ftBuilder.HasKey(ft => new {ft.FanficId, ft.TagId});
+                    ftBuilder.ToTable("FanficTags");
+                });
     }
 }

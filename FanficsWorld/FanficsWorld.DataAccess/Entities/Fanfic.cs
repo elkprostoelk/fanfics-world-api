@@ -35,4 +35,8 @@ public class Fanfic
     public ICollection<Fandom> Fandoms { get; set; } = new HashSet<Fandom>();
     
     public ICollection<FanficFandom> FanficFandoms { get; set; } = new HashSet<FanficFandom>();
+
+    public ICollection<Tag> Tags { get; set; } = new HashSet<Tag>();
+
+    public ICollection<FanficTag> FanficTags { get; set; } = new HashSet<FanficTag>();
 }
