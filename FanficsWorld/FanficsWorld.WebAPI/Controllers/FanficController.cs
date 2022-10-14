@@ -52,6 +52,25 @@ public class FanficController : ControllerBase
     }
 
     [Authorize]
+    [HttpPost("add-tags/{fanficId:long}")]
+    public async Task<IActionResult> AddTagsAsync(long fanficId, AddTagsDto addTagsDto)
+    {
+        var fanfic = await _service.GetByIdAsync(fanficId);
+        if (fanfic is null)
+        {
+            return NotFound();
+        }
+
+        if (fanfic.Author.Id != User.GetUserId() && !User.IsInRole("Admin"))
+        {
+            return StatusCode(403, "You cannot add tags to the other user's fanfic!");
+        }
+
+        var added = await _service.AddTagsToFanficAsync(fanficId, addTagsDto);
+        return added ? Ok() : Conflict();
+    }
+
+    [Authorize]
     [HttpDelete("{id:long}")]
     public async Task<IActionResult> DeleteFanficAsync(long id)
     {

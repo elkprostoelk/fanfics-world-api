@@ -48,4 +48,17 @@ public class TagService : ITagService
             return null;
         }
     }
+
+    public async Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _repository.ContainsAllAsync(ids, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            _logger.LogCritical(e, "An exception occured while executing the service");
+            return false;
+        }
+    }
 }

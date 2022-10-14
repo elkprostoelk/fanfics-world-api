@@ -17,6 +17,7 @@ public class FanficService : IFanficService
     private readonly IUserRepository _userRepository;
     private readonly IHtmlSanitizer _sanitizer;
     private readonly IFandomRepository _fandomRepository;
+    private readonly ITagRepository _tagRepository;
 
     public FanficService(
         IFanficRepository repository,
@@ -24,7 +25,8 @@ public class FanficService : IFanficService
         IMapper mapper,
         IUserRepository userRepository,
         IHtmlSanitizer sanitizer,
-        IFandomRepository fandomRepository)
+        IFandomRepository fandomRepository,
+        ITagRepository tagRepository)
     {
         _repository = repository;
         _logger = logger;
@@ -32,6 +34,7 @@ public class FanficService : IFanficService
         _userRepository = userRepository;
         _sanitizer = sanitizer;
         _fandomRepository = fandomRepository;
+        _tagRepository = tagRepository;
     }
 
     public async Task<FanficDto?> GetByIdAsync(long id)
@@ -80,6 +83,31 @@ public class FanficService : IFanficService
         {
             var fanfic = await _repository.GetAsync(id);
             return fanfic is not null && await _repository.DeleteAsync(fanfic);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occured while executing the service");
+            return false;
+        }
+    }
+
+    public async Task<bool> AddTagsToFanficAsync(long fanficId, AddTagsDto addTagsDto)
+    {
+        try
+        {
+            var fanfic = await _repository.GetAsync(fanficId);
+
+            if (fanfic is null)
+            {
+                return false;
+            }
+            var tags = await _tagRepository.GetRangeAsync(addTagsDto.TagIds);
+            foreach (var tag in tags)
+            {
+                fanfic.Tags.Add(tag);
+            }
+
+            return await _repository.UpdateAsync(fanfic);
         }
         catch (Exception e)
         {

@@ -26,10 +26,12 @@ public static class ServiceBuilderExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IFanficRepository, FanficRepository>();
         services.AddScoped<IFandomRepository, FandomRepository>();
+        services.AddScoped<ITagRepository, TagRepository>();
 
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IFanficService, FanficService>();
         services.AddScoped<IFandomService, FandomService>();
+        services.AddScoped<ITagService, TagService>();
 
         services.AddValidatorsFromAssemblyContaining<LoginUserDtoValidator>();
         services.AddSingleton<IHtmlSanitizer>(_ => new HtmlSanitizer());

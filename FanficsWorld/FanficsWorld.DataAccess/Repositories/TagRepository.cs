@@ -22,4 +22,11 @@ public class TagRepository : ITagRepository
             .AsNoTracking()
             .OrderByDescending(t => t.Fanfics.Count)
             .Take(10).ToListAsync();
+
+    public async Task<ICollection<Tag>> GetRangeAsync(ICollection<long> tagIds) =>
+        await _context.Tags.AsNoTracking()
+            .Where(t => tagIds.Contains(t.Id)).ToListAsync();
+
+    public async Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken cancellationToken) =>
+        await _context.Tags.AllAsync(t => ids.Contains(t.Id), cancellationToken);
 }

@@ -31,4 +31,11 @@ public class FanficRepository : IFanficRepository
         _context.Fanfics.Remove(fanfic);
         return await _context.SaveChangesAsync() > 0;
     }
+
+    public async Task<bool> UpdateAsync(Fanfic fanfic)
+    {
+        _context.ChangeTracker.Clear();
+        _context.Fanfics.Update(fanfic);
+        return await _context.SaveChangesAsync() > 0;
+    }
 }
