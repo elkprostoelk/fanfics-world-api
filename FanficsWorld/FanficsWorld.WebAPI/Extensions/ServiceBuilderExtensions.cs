@@ -4,6 +4,7 @@ using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.DataAccess.Repositories;
 using FanficsWorld.Services.Interfaces;
+using FanficsWorld.Services.Jobs;
 using FanficsWorld.Services.Services;
 using FanficsWorld.WebAPI.Validators;
 using FluentValidation;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Quartz;
 
 namespace FanficsWorld.WebAPI.Extensions;
 
@@ -37,6 +39,15 @@ public static class ServiceBuilderExtensions
         services.AddSingleton<IHtmlSanitizer>(_ => new HtmlSanitizer());
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         services.AddRouting(options => options.LowercaseUrls = true);
+        
+        services.AddQuartz(q =>
+        {
+            q.UseMicrosoftDependencyInjectionJobFactory();
+
+            q.AddJobAndTrigger<FanficStatusUpdatingJob>(configuration);
+        });
+
+        services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
     }
 
     public static void ConfigureIdentity(this IServiceCollection services)

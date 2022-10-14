@@ -5,6 +5,7 @@ using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
 using Ganss.XSS;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.Services.Services;
@@ -18,6 +19,7 @@ public class FanficService : IFanficService
     private readonly IHtmlSanitizer _sanitizer;
     private readonly IFandomRepository _fandomRepository;
     private readonly ITagRepository _tagRepository;
+    private readonly IConfiguration _configuration;
 
     public FanficService(
         IFanficRepository repository,
@@ -26,7 +28,8 @@ public class FanficService : IFanficService
         IUserRepository userRepository,
         IHtmlSanitizer sanitizer,
         IFandomRepository fandomRepository,
-        ITagRepository tagRepository)
+        ITagRepository tagRepository,
+        IConfiguration configuration)
     {
         _repository = repository;
         _logger = logger;
@@ -35,6 +38,7 @@ public class FanficService : IFanficService
         _sanitizer = sanitizer;
         _fandomRepository = fandomRepository;
         _tagRepository = tagRepository;
+        _configuration = configuration;
     }
 
     public async Task<FanficDto?> GetByIdAsync(long id)
@@ -113,6 +117,36 @@ public class FanficService : IFanficService
         {
             _logger.LogError(e, "An error occured while executing the service");
             return false;
+        }
+    }
+
+    public async Task UpdateFanficsStatusesAsync()
+    {
+        var valueParsed = int.TryParse(_configuration["FanficFrozenAfterDays"], out var fanficFreezingDays);
+        if (!valueParsed)
+        {
+            fanficFreezingDays = 180;
+        }
+        try
+        {
+            var changedFanfics = new List<Fanfic>();
+            var fanfics = await _repository.GetAllInProgressAsync();
+            for (var i = 0; i < fanfics.Count; i++)
+            {
+                var current = fanfics.ElementAt(i);
+                var difference = (DateTime.Now - current.CreatedDate).Days;
+                if (difference >= fanficFreezingDays)
+                {
+                    current.Status = FanficStatus.Frozen;
+                    changedFanfics.Add(current);
+                }
+            }
+
+            await _repository.UpdateRangeAsync(changedFanfics);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occured while executing the service");
         }
     }
 }

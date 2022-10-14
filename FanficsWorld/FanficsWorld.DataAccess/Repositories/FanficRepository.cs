@@ -1,4 +1,5 @@
-﻿using FanficsWorld.DataAccess.Entities;
+﻿using FanficsWorld.Common.Enums;
+using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,5 +38,17 @@ public class FanficRepository : IFanficRepository
         _context.ChangeTracker.Clear();
         _context.Fanfics.Update(fanfic);
         return await _context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<ICollection<Fanfic>> GetAllInProgressAsync() =>
+        await _context.Fanfics
+            .Where(ffic => ffic.Status == FanficStatus.InProgress)
+            .ToListAsync();
+
+    public async Task UpdateRangeAsync(ICollection<Fanfic> changedFanfics)
+    {
+        _context.ChangeTracker.Clear();
+        _context.Fanfics.UpdateRange(changedFanfics);
+        await _context.SaveChangesAsync();
     }
 }

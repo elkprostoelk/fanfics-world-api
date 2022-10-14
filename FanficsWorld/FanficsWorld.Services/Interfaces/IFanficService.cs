@@ -8,4 +8,5 @@ public interface IFanficService
     Task<bool> CreateAsync(NewFanficDto newFanficDto, string userId);
     Task<bool> DeleteAsync(long id);
     Task<bool> AddTagsToFanficAsync(long fanficId, AddTagsDto addTagsDto);
+    Task UpdateFanficsStatusesAsync();
 }
