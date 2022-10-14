@@ -8,7 +8,10 @@ namespace FanficsWorld.DataAccess;
 public class FanficsDbContext : IdentityDbContext<User>
 {
     public DbSet<Fanfic> Fanfics { get; set; }
+    
     public DbSet<Fandom> Fandoms { get; set; }
+    
+    public DbSet<Tag> Tags { get; set; }
 
     public FanficsDbContext(DbContextOptions<FanficsDbContext> options) : base(options)
     {

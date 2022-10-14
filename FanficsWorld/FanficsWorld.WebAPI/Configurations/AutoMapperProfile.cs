@@ -22,5 +22,8 @@ public class AutoMapperProfile : Profile
                 opts => opts.MapFrom(fdom => fdom.Fanfics));
         CreateMap<Fandom, SimpleFandomDto>();
         CreateMap<NewFandomDto, Fandom>();
+
+        CreateMap<Tag, TagDto>()
+            .ReverseMap();
     }
 }
