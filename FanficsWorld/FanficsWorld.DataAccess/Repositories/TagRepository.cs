@@ -29,4 +29,9 @@ public class TagRepository : ITagRepository
 
     public async Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken cancellationToken) =>
         await _context.Tags.AllAsync(t => ids.Contains(t.Id), cancellationToken);
+
+    public async Task<Tag?> GetAsync(long id) =>
+        await _context.Tags.AsNoTracking()
+            .Include(t => t.Fanfics)
+            .FirstOrDefaultAsync(t => t.Id == id);
 }

@@ -25,5 +25,8 @@ public class AutoMapperProfile : Profile
 
         CreateMap<Tag, TagDto>()
             .ReverseMap();
+        CreateMap<Tag, TagWithFanficsDto>()
+            .ForMember(dto => dto.Fanfics,
+                opts => opts.MapFrom(t => t.Fanfics));
     }
 }

@@ -61,4 +61,18 @@ public class TagService : ITagService
             return false;
         }
     }
+
+    public async Task<TagWithFanficsDto?> GetFullByIdAsync(long id)
+    {
+        try
+        {
+            var tag = await _repository.GetAsync(id);
+            return _mapper.Map<TagWithFanficsDto>(tag);
+        }
+        catch (Exception e)
+        {
+            _logger.LogCritical(e, "An exception occured while executing the service");
+            return null;
+        }
+    }
 }
