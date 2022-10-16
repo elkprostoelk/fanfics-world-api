@@ -36,7 +36,7 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<User> GetAsync(string login) =>
+    public async Task<User?> GetAsync(string login) =>
         await _userManager.FindByNameAsync(login);
 
     public async Task<ICollection<User>> GetRangeAsync(ICollection<string> coauthorIds) =>

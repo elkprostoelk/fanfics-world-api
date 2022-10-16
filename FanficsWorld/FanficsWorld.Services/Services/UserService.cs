@@ -50,7 +50,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<UserTokenDto> ValidateUserAsync(LoginUserDto loginUserDto)
+    public async Task<UserTokenDto?> ValidateUserAsync(LoginUserDto loginUserDto)
     {
         try
         {

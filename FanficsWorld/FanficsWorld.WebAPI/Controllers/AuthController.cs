@@ -37,8 +37,8 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
         
-        var validatedUserTokenDTO = await _userService.ValidateUserAsync(loginUserDto);
-        return validatedUserTokenDTO is not null ? Ok(validatedUserTokenDTO) : Unauthorized();
+        var validatedUserTokenDto = await _userService.ValidateUserAsync(loginUserDto);
+        return validatedUserTokenDto is not null ? Ok(validatedUserTokenDto) : Unauthorized();
     }
 
     [HttpPost("register")]
