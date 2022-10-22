@@ -24,6 +24,8 @@ public class Fanfic
     
     public FanficDirection Direction { get; set; }
     
+    public ulong Views { get; set; }
+    
     public string AuthorId { get; set; }
     
     public User? Author { get; set; }

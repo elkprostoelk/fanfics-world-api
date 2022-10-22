@@ -22,6 +22,10 @@ public class FanficConfiguration : IEntityTypeConfiguration<Fanfic>
             .IsRequired()
             .HasDefaultValueSql("GETDATE()");
 
+        builder.Property(ffic => ffic.Views)
+            .IsRequired()
+            .HasDefaultValue(0);
+
         builder.HasOne(f => f.Author)
             .WithMany(u => u.Fanfics)
             .HasForeignKey(f => f.AuthorId)

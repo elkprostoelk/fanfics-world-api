@@ -151,4 +151,25 @@ public class FanficService : IFanficService
             _logger.LogError(e, "An error occured while executing the service");
         }
     }
+
+    public async Task<ulong?> IncrementFanficViewsCounterAsync(long fanficId)
+    {
+        try
+        {
+            var fanfic = await _repository.GetAsync(fanficId);
+            if (fanfic is null)
+            {
+                return null;
+            }
+            
+            var newCount = ++fanfic.Views;
+            var updated = await _repository.UpdateAsync(fanfic);
+            return updated ? newCount : null;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occured while executing the service");
+            return null;
+        }
+    }
 }

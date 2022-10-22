@@ -14,6 +14,7 @@ public class FanficController : ControllerBase
 {
     private readonly IFanficService _service;
     private readonly IValidator<NewFanficDto> _newFanficValidator;
+    private static readonly Mutex FanficViewsCounterMutex = new();
 
     public FanficController(
         IFanficService service,
@@ -68,6 +69,27 @@ public class FanficController : ControllerBase
 
         var added = await _service.AddTagsToFanficAsync(fanficId, addTagsDto);
         return added ? Ok() : Conflict();
+    }
+
+    [HttpPatch("increment-views/{id:long}")]
+    public async Task<IActionResult> IncrementFanficViewsAsync(long id)
+    {
+        var fanfic = await _service.GetByIdAsync(id);
+        if (fanfic is null)
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            FanficViewsCounterMutex.WaitOne();
+            var updatedCounter = await _service.IncrementFanficViewsCounterAsync(id);
+            return updatedCounter.HasValue ? Ok(updatedCounter) : Conflict();
+        }
+        finally
+        {
+            FanficViewsCounterMutex.ReleaseMutex();
+        }
     }
 
     [Authorize]
