@@ -7,4 +7,5 @@ public interface IFandomRepository
     Task<ICollection<Fandom>> GetTop10Async();
     Task<ICollection<Fandom>> GetRangeAsync(ICollection<long> fandomIds);
     Task<bool> CreateAsync(Fandom fandom);
+    Task<Fandom?> GetAsync(long id);
 }

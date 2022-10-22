@@ -41,4 +41,16 @@ public class FandomController : ControllerBase
         
         return created ? StatusCode(201) : Conflict();
     }
+
+    [HttpGet("{id:long}")]
+    public async Task<IActionResult> GetFandomAndFanficsAsync(long id)
+    {
+        var fandom = await _service.GetFandomWithFanficsAsync(id);
+        if (fandom is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(fandom);
+    }
 }

@@ -50,4 +50,18 @@ public class FandomService : IFandomService
             return false;
         }
     }
+
+    public async Task<FandomDto?> GetFandomWithFanficsAsync(long id)
+    {
+        try
+        {
+            var fandom = await _repository.GetAsync(id);
+            return _mapper.Map<FandomDto>(fandom);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occured while executing the service");
+            return null;
+        }
+    }
 }
