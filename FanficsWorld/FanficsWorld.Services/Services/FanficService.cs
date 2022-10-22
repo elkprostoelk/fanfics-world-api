@@ -129,20 +129,22 @@ public class FanficService : IFanficService
         }
         try
         {
-            var changedFanfics = new List<Fanfic>();
-            var fanfics = await _repository.GetAllInProgressAsync();
-            for (var i = 0; i < fanfics.Count; i++)
+            await foreach (var fanfics in _repository.GetAllInProgressAsync())
             {
-                var current = fanfics.ElementAt(i);
-                var difference = (DateTime.Now - current.CreatedDate).Days;
-                if (difference >= fanficFreezingDays)
+                var changedFanfics = new List<Fanfic>();
+                for (var i = 0; i < fanfics.Count(); i++)
                 {
-                    current.Status = FanficStatus.Frozen;
-                    changedFanfics.Add(current);
+                    var current = fanfics.ElementAt(i);
+                    var difference = (DateTime.Now - current.LastModified.GetValueOrDefault()).Days;
+                    if (difference >= fanficFreezingDays)
+                    {
+                        current.Status = FanficStatus.Frozen;
+                        changedFanfics.Add(current);
+                    }
                 }
-            }
 
-            await _repository.UpdateRangeAsync(changedFanfics);
+                await _repository.UpdateRangeAsync(changedFanfics);
+            }
         }
         catch (Exception e)
         {

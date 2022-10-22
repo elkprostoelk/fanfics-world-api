@@ -8,6 +8,6 @@ public interface IFanficRepository
     Task<bool> AddAsync(Fanfic fanfic);
     Task<bool> DeleteAsync(Fanfic fanfic);
     Task<bool> UpdateAsync(Fanfic fanfic);
-    Task<ICollection<Fanfic>> GetAllInProgressAsync();
+    IAsyncEnumerable<IQueryable<Fanfic>> GetAllInProgressAsync();
     Task UpdateRangeAsync(ICollection<Fanfic> changedFanfics);
 }

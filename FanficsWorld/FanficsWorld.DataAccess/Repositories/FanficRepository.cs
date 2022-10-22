@@ -35,19 +35,36 @@ public class FanficRepository : IFanficRepository
 
     public async Task<bool> UpdateAsync(Fanfic fanfic)
     {
-        _context.ChangeTracker.Clear();
+        fanfic.LastModified = DateTime.Now;
         _context.Fanfics.Update(fanfic);
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<ICollection<Fanfic>> GetAllInProgressAsync() =>
-        await _context.Fanfics
-            .Where(ffic => ffic.Status == FanficStatus.InProgress)
-            .ToListAsync();
+    public async IAsyncEnumerable<IQueryable<Fanfic>> GetAllInProgressAsync()
+    {
+        var fanficsCount = await _context.Fanfics.CountAsync(ffic => ffic.Status == FanficStatus.InProgress);
+        if (fanficsCount > 100)
+        {
+            for (var i = 0; i < fanficsCount; i+=100)
+            {
+                yield return _context.Fanfics.Skip(i)
+                    .Take(100)
+                    .Where(ffic => ffic.Status == FanficStatus.InProgress);
+            }
+        }
+        else
+        {
+            yield return _context.Fanfics
+                .Where(ffic => ffic.Status == FanficStatus.InProgress);
+        }
+    }
 
     public async Task UpdateRangeAsync(ICollection<Fanfic> changedFanfics)
     {
-        _context.ChangeTracker.Clear();
+        for (var i = 0; i < changedFanfics.Count; i++)
+        {
+            changedFanfics.ElementAt(i).LastModified = DateTime.Now;
+        }
         _context.Fanfics.UpdateRange(changedFanfics);
         await _context.SaveChangesAsync();
     }
