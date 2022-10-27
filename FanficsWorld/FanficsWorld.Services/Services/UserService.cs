@@ -69,8 +69,9 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<bool> UserExistsAsync(string id) => 
-        await _userManager.FindByIdAsync(id) is not null;
+    public async Task<bool> UserExistsAsync(string idOrUserName) => 
+        await _userManager.FindByIdAsync(idOrUserName) is not null
+        || await _userManager.FindByNameAsync(idOrUserName) is not null;
 
     public async Task<bool> ChangePasswordAsync(string id, ChangePasswordDto changePasswordDto)
     {

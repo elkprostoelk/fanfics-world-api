@@ -36,9 +36,15 @@ public class AuthController : ControllerBase
             validationResult.Errors.ForEach(failure => ModelState.AddModelError(failure.PropertyName, failure.ErrorMessage));
             return BadRequest(ModelState);
         }
+
+        var userExists = await _userService.UserExistsAsync(loginUserDto.Login);
+        if (!userExists)
+        {
+            return NotFound($"User {loginUserDto.Login} was not found!");
+        }
         
         var validatedUserTokenDto = await _userService.ValidateUserAsync(loginUserDto);
-        return validatedUserTokenDto is not null ? Ok(validatedUserTokenDto) : Unauthorized();
+        return validatedUserTokenDto is not null ? Ok(validatedUserTokenDto) : Unauthorized("Password is invalid!");
     }
 
     [HttpPost("register")]
