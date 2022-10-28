@@ -2,12 +2,11 @@ using FanficsWorld.WebAPI.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
-
 var builder = WebApplication.CreateBuilder(args);
 
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateBootstrapLogger();
 builder.Host.UseSerilog();
 
 // Add services to the container.
