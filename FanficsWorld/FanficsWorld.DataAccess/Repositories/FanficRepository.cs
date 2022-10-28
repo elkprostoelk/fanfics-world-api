@@ -23,6 +23,8 @@ public class FanficRepository : IFanficRepository
 
     public async Task<bool> AddAsync(Fanfic fanfic)
     {
+        fanfic.CreatedDate = DateTime.Now;
+        fanfic.LastModified = DateTime.Now;
         await _context.Fanfics.AddAsync(fanfic);
         return await _context.SaveChangesAsync() > 0;
     }
