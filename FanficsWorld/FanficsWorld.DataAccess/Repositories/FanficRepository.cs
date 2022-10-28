@@ -40,23 +40,11 @@ public class FanficRepository : IFanficRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async IAsyncEnumerable<IQueryable<Fanfic>> GetAllInProgressAsync()
+    public IQueryable<Fanfic> GetAllInProgressAsync(int skipCount, int takeCount)
     {
-        var fanficsCount = await _context.Fanfics.CountAsync(ffic => ffic.Status == FanficStatus.InProgress);
-        if (fanficsCount > 100)
-        {
-            for (var i = 0; i < fanficsCount; i+=100)
-            {
-                yield return _context.Fanfics.Skip(i)
-                    .Take(100)
-                    .Where(ffic => ffic.Status == FanficStatus.InProgress);
-            }
-        }
-        else
-        {
-            yield return _context.Fanfics
+        return _context.Fanfics.Skip(skipCount)
+                .Take(takeCount)
                 .Where(ffic => ffic.Status == FanficStatus.InProgress);
-        }
     }
 
     public async Task UpdateRangeAsync(ICollection<Fanfic> changedFanfics)
@@ -68,4 +56,7 @@ public class FanficRepository : IFanficRepository
         _context.Fanfics.UpdateRange(changedFanfics);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<long> CountAsync() =>
+        await _context.Fanfics.LongCountAsync();
 }

@@ -5,6 +5,7 @@ using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
 using Ganss.XSS;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -129,17 +130,20 @@ public class FanficService : IFanficService
         }
         try
         {
-            await foreach (var fanfics in _repository.GetAllInProgressAsync())
+            var fanficsCount = await _repository.CountAsync();
+            var chunksCount = Convert.ToInt32(Math.Ceiling(fanficsCount / 50d));
+            for (var i = 0; i < chunksCount; i++)
             {
+                var chunk = await _repository.GetAllInProgressAsync(i * 50, 50)
+                    .ToListAsync();
                 var changedFanfics = new List<Fanfic>();
-                for (var i = 0; i < fanfics.Count(); i++)
+                for (var j = 0; j < 50; j++)
                 {
-                    var current = fanfics.ElementAt(i);
-                    var difference = (DateTime.Now - current.LastModified.GetValueOrDefault()).Days;
+                    var difference = (DateTime.Now - chunk[j].LastModified.GetValueOrDefault()).Days;
                     if (difference >= fanficFreezingDays)
                     {
-                        current.Status = FanficStatus.Frozen;
-                        changedFanfics.Add(current);
+                        chunk[j].Status = FanficStatus.Frozen;
+                        changedFanfics.Add(chunk[j]);
                     }
                 }
 
