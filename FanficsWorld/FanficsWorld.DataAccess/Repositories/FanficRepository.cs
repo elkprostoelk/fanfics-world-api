@@ -21,12 +21,12 @@ public class FanficRepository : IFanficRepository
             .Include(f => f.FanficCoauthors)
             .SingleOrDefaultAsync(f => f.Id == id);
 
-    public async Task<bool> AddAsync(Fanfic fanfic)
+    public async Task<long?> AddAsync(Fanfic fanfic)
     {
         fanfic.CreatedDate = DateTime.Now;
         fanfic.LastModified = DateTime.Now;
         await _context.Fanfics.AddAsync(fanfic);
-        return await _context.SaveChangesAsync() > 0;
+        return await _context.SaveChangesAsync() > 0 ? fanfic.Id : null;
     }
 
     public async Task<bool> DeleteAsync(Fanfic fanfic)

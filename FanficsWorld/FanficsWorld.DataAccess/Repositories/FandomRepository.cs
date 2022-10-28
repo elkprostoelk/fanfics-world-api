@@ -26,10 +26,10 @@ public class FandomRepository : IFandomRepository
             .AsNoTracking()
             .Where(fdom => fandomIds.Contains(fdom.Id)).ToListAsync();
 
-    public async Task<bool> CreateAsync(Fandom fandom)
+    public async Task<long?> CreateAsync(Fandom fandom)
     {
         await _context.Fandoms.AddAsync(fandom);
-        return await _context.SaveChangesAsync() > 0;
+        return await _context.SaveChangesAsync() > 0 ? fandom.Id : null;
     }
 
     public async Task<Fandom?> GetAsync(long id) =>

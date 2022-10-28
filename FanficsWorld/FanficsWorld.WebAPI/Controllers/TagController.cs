@@ -28,7 +28,7 @@ public class TagController : ControllerBase
         var tag = await _service.GetFullByIdAsync(id);
         if (tag is null)
         {
-            return NotFound();
+            return NotFound($"Tag {id} was not found!");
         }
 
         return Ok(tag);

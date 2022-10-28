@@ -45,7 +45,9 @@ public class AuthController : ControllerBase
         }
         
         var validatedUserTokenDto = await _userService.ValidateUserAsync(loginUserDto);
-        return validatedUserTokenDto is not null ? Ok(validatedUserTokenDto) : Unauthorized("Password is invalid!");
+        return validatedUserTokenDto is not null
+            ? Ok(validatedUserTokenDto)
+            : Unauthorized("Password is invalid!");
     }
 
     [HttpPost("register")]
@@ -59,7 +61,9 @@ public class AuthController : ControllerBase
         }
         
         var registered = await _userService.RegisterUserAsync(registerUserDto);
-        return registered ? StatusCode(201) : Conflict();
+        return registered
+            ? StatusCode(201)
+            : Conflict("An error occured while registering the user");
     }
 
     [Authorize]
@@ -80,6 +84,8 @@ public class AuthController : ControllerBase
         }
 
         var changed = await _userService.ChangePasswordAsync(id, changePasswordDto);
-        return changed ? NoContent() : Conflict("Error while changing a password!");
+        return changed
+            ? NoContent()
+            : Conflict("Error while changing a password!");
     }
 }

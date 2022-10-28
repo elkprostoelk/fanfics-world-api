@@ -37,7 +37,7 @@ public class FandomService : IFandomService
         }
     }
 
-    public async Task<bool> CreateAsync(NewFandomDto newFandomDto)
+    public async Task<long?> CreateAsync(NewFandomDto newFandomDto)
     {
         try
         {
@@ -47,7 +47,7 @@ public class FandomService : IFandomService
         catch (Exception e)
         {
             _logger.LogError(e, "An error occured while executing the service");
-            return false;
+            return null;
         }
     }
 

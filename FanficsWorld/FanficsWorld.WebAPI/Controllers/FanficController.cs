@@ -30,7 +30,7 @@ public class FanficController : ControllerBase
         var fanfic = await _service.GetByIdAsync(id);
         if (fanfic is null)
         {
-            return NotFound();
+            return NotFound($"Fanfic {id} was not found!");
         }
 
         return Ok(fanfic);
@@ -47,9 +47,11 @@ public class FanficController : ControllerBase
             return BadRequest(ModelState);
         }
         
-        var created = await _service.CreateAsync(newFanficDto, User.GetUserId());
+        var createdFanficId = await _service.CreateAsync(newFanficDto, User.GetUserId());
         
-        return created ? StatusCode(201) : Conflict();
+        return createdFanficId.HasValue
+            ? StatusCode(201, createdFanficId)
+            : Conflict("An error occured while creating a fanfic");
     }
 
     [Authorize]
@@ -59,7 +61,7 @@ public class FanficController : ControllerBase
         var fanfic = await _service.GetByIdAsync(fanficId);
         if (fanfic is null)
         {
-            return NotFound();
+            return NotFound($"Fanfic {fanficId} was not found!");
         }
 
         if (fanfic.Author.Id != User.GetUserId() && !User.IsInRole("Admin"))
@@ -68,7 +70,9 @@ public class FanficController : ControllerBase
         }
 
         var added = await _service.AddTagsToFanficAsync(fanficId, addTagsDto);
-        return added ? Ok() : Conflict();
+        return added
+            ? Ok("Tags are added!")
+            : Conflict("An error occured while adding tags to the fanfic");
     }
 
     [HttpPatch("increment-views/{id:long}")]
@@ -77,14 +81,16 @@ public class FanficController : ControllerBase
         var fanfic = await _service.GetByIdAsync(id);
         if (fanfic is null)
         {
-            return NotFound();
+            return NotFound($"Fanfic {id} was not found!");
         }
 
         try
         {
             FanficViewsCounterMutex.WaitOne();
             var updatedCounter = await _service.IncrementFanficViewsCounterAsync(id);
-            return updatedCounter.HasValue ? Ok(updatedCounter) : Conflict();
+            return updatedCounter.HasValue
+                ? Ok(updatedCounter)
+                : Conflict($"Fanfic {id} views were not incremented!");
         }
         finally
         {
@@ -99,7 +105,7 @@ public class FanficController : ControllerBase
         var fanfic = await _service.GetByIdAsync(id);
         if (fanfic is null)
         {
-            return NotFound();
+            return NotFound($"Fanfic {id} was not found!");
         }
 
         if (fanfic.Author.Id != User.GetUserId() && !User.IsInRole("Admin"))
@@ -109,6 +115,6 @@ public class FanficController : ControllerBase
 
         var deleted = await _service.DeleteAsync(id);
         
-        return deleted ? NoContent() : Conflict();
+        return deleted ? NoContent() : Conflict("An error occured while deleting a fanfic");
     }
 }

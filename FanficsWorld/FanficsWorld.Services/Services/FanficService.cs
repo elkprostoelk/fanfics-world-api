@@ -56,7 +56,7 @@ public class FanficService : IFanficService
         }
     }
 
-    public async Task<bool> CreateAsync(NewFanficDto newFanficDto, string userId)
+    public async Task<long?> CreateAsync(NewFanficDto newFanficDto, string userId)
     {
         var fanfic = new Fanfic
         {
@@ -78,7 +78,7 @@ public class FanficService : IFanficService
         catch (Exception e)
         {
             _logger.LogError(e, "An error occured while executing the service");
-            return false;
+            return null;
         }
     }
 

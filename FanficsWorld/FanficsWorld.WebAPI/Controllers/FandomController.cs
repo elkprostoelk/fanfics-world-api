@@ -37,9 +37,11 @@ public class FandomController : ControllerBase
             return BadRequest(ModelState);
         }
         
-        var created = await _service.CreateAsync(newFandomDto);
+        var createdFandomId = await _service.CreateAsync(newFandomDto);
         
-        return created ? StatusCode(201) : Conflict();
+        return createdFandomId.HasValue
+            ? StatusCode(201, createdFandomId)
+            : Conflict("An error occured while creating a fandom");
     }
 
     [HttpGet("{id:long}")]
@@ -48,7 +50,7 @@ public class FandomController : ControllerBase
         var fandom = await _service.GetFandomWithFanficsAsync(id);
         if (fandom is null)
         {
-            return NotFound();
+            return NotFound($"Fandom {id} was not found!");
         }
 
         return Ok(fandom);
