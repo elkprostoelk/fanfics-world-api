@@ -1,6 +1,7 @@
 ﻿using FanficsWorld.Common.DTO;
 using FanficsWorld.Services.Interfaces;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,7 +34,7 @@ public class AuthController : ControllerBase
         var validationResult = await _loginValidator.ValidateAsync(loginUserDto);
         if (!validationResult.IsValid)
         {
-            validationResult.Errors.ForEach(failure => ModelState.AddModelError(failure.PropertyName, failure.ErrorMessage));
+            validationResult.AddToModelState(ModelState);
             return BadRequest(ModelState);
         }
 
@@ -53,7 +54,7 @@ public class AuthController : ControllerBase
         var validationResult = await _registerValidator.ValidateAsync(registerUserDto);
         if (!validationResult.IsValid)
         {
-            validationResult.Errors.ForEach(failure => ModelState.AddModelError(failure.PropertyName, failure.ErrorMessage));
+            validationResult.AddToModelState(ModelState);
             return BadRequest(ModelState);
         }
         
@@ -68,7 +69,7 @@ public class AuthController : ControllerBase
         var validationResult = await _changePasswordValidator.ValidateAsync(changePasswordDto);
         if (!validationResult.IsValid)
         {
-            validationResult.Errors.ForEach(failure => ModelState.AddModelError(failure.PropertyName, failure.ErrorMessage));
+            validationResult.AddToModelState(ModelState);
             return BadRequest(ModelState);
         }
         
