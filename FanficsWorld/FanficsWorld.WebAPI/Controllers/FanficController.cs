@@ -36,6 +36,10 @@ public class FanficController : ControllerBase
         return Ok(fanfic);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetFanficsPageAsync(int page = 1, int itemsPerPage = 20) =>
+        Ok(await _service.GetPageWithFanficsAsync(page, itemsPerPage));
+
     [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateFanficAsync(NewFanficDto newFanficDto)

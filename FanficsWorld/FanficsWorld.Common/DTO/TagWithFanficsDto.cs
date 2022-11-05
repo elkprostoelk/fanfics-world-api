@@ -6,5 +6,5 @@ public class TagWithFanficsDto
     
     public long Name { get; set; }
     
-    public ICollection<FanficDto> Fanfics { get; set; }
+    public ICollection<SimpleFanficDto> Fanfics { get; set; }
 }

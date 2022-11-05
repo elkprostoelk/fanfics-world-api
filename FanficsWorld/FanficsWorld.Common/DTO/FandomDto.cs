@@ -6,5 +6,5 @@ public class FandomDto
     
     public string Title { get; set; }
 
-    public ICollection<FanficDto> Fanfics { get; set; }
+    public ICollection<SimpleFanficDto> Fanfics { get; set; }
 }

@@ -42,12 +42,18 @@ public class FanficRepository : IFanficRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public IQueryable<Fanfic> GetAllInProgressAsync(int skipCount, int takeCount)
-    {
-        return _context.Fanfics.Skip(skipCount)
+    public IQueryable<Fanfic> GetAllPagedAsync(int pageNumber, int takeCount) =>
+        _context.Fanfics.Skip(pageNumber * takeCount)
+            .Take(takeCount)
+            .Include(ffic => ffic.Author)
+            .Include(ffic => ffic.Coauthors)
+            .Include(ffic => ffic.Fandoms)
+            .Include(ffic => ffic.Tags);
+    
+    public IQueryable<Fanfic> GetAllInProgressAsync(int skipCount, int takeCount) =>
+        _context.Fanfics.Skip(skipCount)
                 .Take(takeCount)
                 .Where(ffic => ffic.Status == FanficStatus.InProgress);
-    }
 
     public async Task UpdateRangeAsync(ICollection<Fanfic> changedFanfics)
     {
