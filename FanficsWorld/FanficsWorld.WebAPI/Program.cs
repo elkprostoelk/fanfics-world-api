@@ -40,7 +40,7 @@ else
         var exception = exceptionHandlerPathFeature.Error;
         logger.LogCritical(exception, "An exception occured while processing the request");
         context.Response.StatusCode = 500;
-        await context.Response.WriteAsJsonAsync(new {error = exception.Message});
+        await context.Response.WriteAsJsonAsync(new { error = "Internal Server Error"});
     }));
 }
 

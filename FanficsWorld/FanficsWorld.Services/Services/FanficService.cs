@@ -177,18 +177,31 @@ public class FanficService : IFanficService
         }
     }
 
-    public async Task<ICollection<SimpleFanficDto>> GetPageWithFanficsAsync(int page, int itemsPerPage)
+    public async Task<ServicePagedResultDto<SimpleFanficDto>> GetPageWithFanficsAsync(int page, int itemsPerPage)
     {
         try
         {
             var fanfics = await _repository.GetAllPagedAsync(page, itemsPerPage)
                 .ToListAsync();
-            return _mapper.Map<ICollection<SimpleFanficDto>>(fanfics);
+            var fanficDtos = _mapper.Map<ICollection<SimpleFanficDto>>(fanfics);
+            var totalItems = await _repository.CountAsync();
+            var pagesCount = Convert.ToInt32(Math.Ceiling(totalItems / (double)itemsPerPage));
+            return new ServicePagedResultDto<SimpleFanficDto>
+            {
+                PageContent = fanficDtos,
+                CurrentPage = page,
+                TotalItems = totalItems,
+                PagesCount = pagesCount,
+                ItemsPerPage = itemsPerPage
+            };
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An error occured while executing the service");
-            return new List<SimpleFanficDto>();
+            return new ServicePagedResultDto<SimpleFanficDto>
+            {
+                PageContent = new List<SimpleFanficDto>()
+            };
         }
     }
 }

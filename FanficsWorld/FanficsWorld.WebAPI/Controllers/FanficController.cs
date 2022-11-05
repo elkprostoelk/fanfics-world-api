@@ -37,8 +37,15 @@ public class FanficController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetFanficsPageAsync(int page = 1, int itemsPerPage = 20) =>
-        Ok(await _service.GetPageWithFanficsAsync(page, itemsPerPage));
+    public async Task<IActionResult> GetFanficsPageAsync(int page = 1, int itemsPerPage = 20)
+    {
+        if (page <= 0 || itemsPerPage <= 0)
+        {
+            return BadRequest("Pages' and items' count must be only positive!");
+        }
+        
+        return Ok(await _service.GetPageWithFanficsAsync(page, itemsPerPage));
+    }
 
     [Authorize]
     [HttpPost]
