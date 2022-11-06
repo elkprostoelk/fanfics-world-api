@@ -21,6 +21,7 @@ public class FanficService : IFanficService
     private readonly IFandomRepository _fandomRepository;
     private readonly ITagRepository _tagRepository;
     private readonly IConfiguration _configuration;
+    private readonly IUnitOfWork _unitOfWork;
 
     public FanficService(
         IFanficRepository repository,
@@ -30,7 +31,8 @@ public class FanficService : IFanficService
         IHtmlSanitizer sanitizer,
         IFandomRepository fandomRepository,
         ITagRepository tagRepository,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IUnitOfWork unitOfWork)
     {
         _repository = repository;
         _logger = logger;
@@ -40,6 +42,7 @@ public class FanficService : IFanficService
         _fandomRepository = fandomRepository;
         _tagRepository = tagRepository;
         _configuration = configuration;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<FanficDto?> GetByIdAsync(long id)
@@ -67,13 +70,40 @@ public class FanficService : IFanficService
             Origin = newFanficDto.Origin,
             Rating = newFanficDto.Rating,
             Status = FanficStatus.InProgress,
-            AuthorId = userId,
-            Coauthors = await _userRepository.GetRangeAsync(newFanficDto.CoauthorIds ?? new List<string>()),
-            Fandoms = await _fandomRepository.GetRangeAsync(newFanficDto.FandomIds ?? new List<long>())
+            AuthorId = userId
         };
         try
         {
-            return await _repository.AddAsync(fanfic);
+            var fanficId = await _repository.AddAsync(fanfic);
+
+            if (fanficId.HasValue)
+            {
+                var coauthors = await _userRepository.GetRangeAsync(newFanficDto.CoauthorIds ?? new List<string>());
+                var fandoms = await _fandomRepository.GetRangeAsync(newFanficDto.FandomIds ?? new List<long>());
+                var tags = await _tagRepository.GetRangeAsync(newFanficDto.TagIds ?? new List<long>());
+                var coauthorsNotEmpty = coauthors.Any();
+                var fandomsNotEmpty = fandoms.Any();
+                var tagsNotEmpty = tags.Any();
+                if (coauthorsNotEmpty)
+                {
+                    coauthors.ToList().ForEach(author => fanfic.Coauthors.Add(author));
+                }
+                if (fandomsNotEmpty)
+                {
+                    fandoms.ToList().ForEach(fandom => fanfic.Fandoms.Add(fandom));
+                }
+                if (tagsNotEmpty)
+                {
+                    tags.ToList().ForEach(tag => fanfic.Tags.Add(tag));
+                }
+
+                if (coauthorsNotEmpty || fandomsNotEmpty || tagsNotEmpty)
+                {
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
+            
+            return fanficId;
         }
         catch (Exception e)
         {

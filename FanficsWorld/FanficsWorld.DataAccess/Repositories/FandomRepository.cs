@@ -37,4 +37,16 @@ public class FandomRepository : IFandomRepository
             .Include(fdom => fdom.Fanfics)
             .AsNoTracking()
             .FirstOrDefaultAsync(fdom => fdom.Id == id);
+
+    public async Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken token)
+    {
+        var containsAll = true;
+        foreach (var id in ids)
+        {
+            containsAll = containsAll && await _context.Fandoms.AnyAsync(f =>
+                f.Id == id, token);
+        }
+
+        return containsAll;
+    }
 }

@@ -8,4 +8,5 @@ public interface IFandomRepository
     Task<ICollection<Fandom>> GetRangeAsync(ICollection<long> fandomIds);
     Task<long?> CreateAsync(Fandom fandom);
     Task<Fandom?> GetAsync(long id);
+    Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken token);
 }

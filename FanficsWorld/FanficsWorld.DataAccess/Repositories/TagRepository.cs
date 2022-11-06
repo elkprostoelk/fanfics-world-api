@@ -27,8 +27,17 @@ public class TagRepository : ITagRepository
         await _context.Tags.AsNoTracking()
             .Where(t => tagIds.Contains(t.Id)).ToListAsync();
 
-    public async Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken cancellationToken) =>
-        await _context.Tags.AllAsync(t => ids.Contains(t.Id), cancellationToken);
+    public async Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken cancellationToken)
+    {
+        var containsAll = true;
+        foreach (var id in ids)
+        {
+            containsAll = containsAll && await _context.Tags.AnyAsync(tag =>
+                tag.Id == id, cancellationToken);
+        }
+
+        return containsAll;
+    }
 
     public async Task<Tag?> GetAsync(long id) =>
         await _context.Tags.AsNoTracking()

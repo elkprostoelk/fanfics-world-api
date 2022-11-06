@@ -24,6 +24,8 @@ public static class ServiceBuilderExtensions
     {
         services.AddDbContext<FanficsDbContext>(x =>
             x.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IFanficRepository, FanficRepository>();

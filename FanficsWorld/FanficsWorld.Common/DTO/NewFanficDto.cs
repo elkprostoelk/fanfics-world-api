@@ -19,4 +19,6 @@ public class NewFanficDto
     public ICollection<string>? CoauthorIds { get; set; }
     
     public ICollection<long>? FandomIds { get; set; }
+    
+    public ICollection<long>? TagIds { get; set; }
 }
