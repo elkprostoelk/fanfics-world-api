@@ -43,7 +43,7 @@ public class FanficRepository : IFanficRepository
 
     public IQueryable<Fanfic> GetAllPagedAsync(int pageNumber, int takeCount) =>
         _context.Fanfics.OrderBy(ffic => ffic.Id)
-            .Skip(pageNumber * takeCount)
+            .Skip((pageNumber - 1) * takeCount)
             .Take(takeCount)
             .Include(ffic => ffic.Author)
             .Include(ffic => ffic.Coauthors)
