@@ -4,10 +4,8 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .CreateBootstrapLogger();
-builder.Host.UseSerilog();
+builder.Host.UseSerilog((_, loggerConfig) =>
+    loggerConfig.ReadFrom.Configuration(builder.Configuration));
 
 // Add services to the container.
 builder.Services.ConfigureServices(builder.Configuration);
