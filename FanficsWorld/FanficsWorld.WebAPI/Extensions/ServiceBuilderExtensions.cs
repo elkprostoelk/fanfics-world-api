@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using FanficsWorld.Common.Configurations;
 using FanficsWorld.DataAccess;
 using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
@@ -20,6 +21,11 @@ namespace FanficsWorld.WebAPI.Extensions;
 
 public static class ServiceBuilderExtensions
 {
+    public static void AddConfigurations(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<FanficStatusUpdatingConfiguration>(configuration);
+    }
+    
     public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<FanficsDbContext>(x =>

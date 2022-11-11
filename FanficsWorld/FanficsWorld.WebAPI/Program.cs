@@ -9,6 +9,7 @@ builder.Host.UseSerilog((_, loggerConfig) =>
 
 // Add services to the container.
 builder.Services.ConfigureServices(builder.Configuration);
+builder.Services.AddConfigurations(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddCors();

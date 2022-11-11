@@ -1,4 +1,5 @@
-﻿using FanficsWorld.DataAccess.Entities;
+﻿using FanficsWorld.Common.Enums;
+using FanficsWorld.DataAccess.Entities;
 
 namespace FanficsWorld.DataAccess.Interfaces;
 
@@ -9,7 +10,8 @@ public interface IFanficRepository
     Task<bool> DeleteAsync(Fanfic fanfic);
     Task<bool> UpdateAsync(Fanfic fanfic);
     IQueryable<Fanfic> GetAllPagedAsync(int pageNumber, int takeCount);
-    IQueryable<Fanfic> GetAllInProgressAsync(int skipCount, int takeCount);
+    IQueryable<Fanfic> GetAllInProgress(int takeCount);
     Task<long> CountAsync();
     Task UpdateRangeAsync(ICollection<Fanfic> changedFanfics);
+    Task<long> CountByStatusAsync(FanficStatus fanficStatus);
 }

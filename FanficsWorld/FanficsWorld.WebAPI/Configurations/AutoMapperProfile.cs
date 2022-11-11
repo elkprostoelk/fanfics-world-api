@@ -10,7 +10,8 @@ public class AutoMapperProfile : Profile
     {
         CreateMap<RegisterUserDto, User>();
         CreateMap<User, SimpleUserDto>();
-        
+
+        CreateMap<Fanfic, MinifiedFanficDto>();
         CreateMap<Fanfic, FanficDto>()
             .ForMember(dto => dto.Coauthors,
                 opts => opts.MapFrom(f => f.Coauthors))

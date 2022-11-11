@@ -1,5 +1,9 @@
-﻿using FanficsWorld.Services.Interfaces;
+﻿using FanficsWorld.Common.Configurations;
+using FanficsWorld.Services.Interfaces;
+using FanficsWorld.Services.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Quartz;
 
 namespace FanficsWorld.Services.Jobs;
@@ -7,26 +11,21 @@ namespace FanficsWorld.Services.Jobs;
 [DisallowConcurrentExecution]
 public class FanficStatusUpdatingJob : IJob
 {
-    private readonly IFanficService _fanficService;
-    private readonly ILogger<FanficStatusUpdatingJob> _logger;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public FanficStatusUpdatingJob(
-        IFanficService fanficService,
-        ILogger<FanficStatusUpdatingJob> logger)
+    public FanficStatusUpdatingJob(IServiceScopeFactory serviceScopeFactory)
     {
-        _fanficService = fanficService;
-        _logger = logger;
+        _serviceScopeFactory = serviceScopeFactory;
     }
     
     public async Task Execute(IJobExecutionContext context)
     {
-        try
-        {
-            await _fanficService.UpdateFanficsStatusesAsync();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "An exception occured while processing the job");
-        }
+        using var scope = _serviceScopeFactory.CreateScope();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<FanficsStatusUpdatingService>>();
+        var fanficStatusUpdatingConfig =
+            scope.ServiceProvider.GetRequiredService<IOptions<FanficStatusUpdatingConfiguration>>();
+        var fanficService = scope.ServiceProvider.GetRequiredService<IFanficService>();
+        var service = new FanficsStatusUpdatingService(logger, fanficStatusUpdatingConfig, fanficService);
+        await service.UpdateFanficsStatusesAsync();
     }
 }

@@ -6,7 +6,6 @@ using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
 using Ganss.XSS;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.Services.Services;
@@ -20,7 +19,6 @@ public class FanficService : IFanficService
     private readonly IHtmlSanitizer _sanitizer;
     private readonly IFandomRepository _fandomRepository;
     private readonly ITagRepository _tagRepository;
-    private readonly IConfiguration _configuration;
     private readonly IUnitOfWork _unitOfWork;
 
     public FanficService(
@@ -31,7 +29,6 @@ public class FanficService : IFanficService
         IHtmlSanitizer sanitizer,
         IFandomRepository fandomRepository,
         ITagRepository tagRepository,
-        IConfiguration configuration,
         IUnitOfWork unitOfWork)
     {
         _repository = repository;
@@ -41,7 +38,6 @@ public class FanficService : IFanficService
         _sanitizer = sanitizer;
         _fandomRepository = fandomRepository;
         _tagRepository = tagRepository;
-        _configuration = configuration;
         _unitOfWork = unitOfWork;
     }
 
@@ -151,41 +147,6 @@ public class FanficService : IFanficService
         }
     }
 
-    public async Task UpdateFanficsStatusesAsync()
-    {
-        var valueParsed = int.TryParse(_configuration["FanficFrozenAfterDays"], out var fanficFreezingDays);
-        if (!valueParsed)
-        {
-            fanficFreezingDays = 180;
-        }
-        try
-        {
-            var fanficsCount = await _repository.CountAsync();
-            var chunksCount = Convert.ToInt32(Math.Ceiling(fanficsCount / 50d));
-            for (var i = 0; i < chunksCount; i++)
-            {
-                var chunk = await _repository.GetAllInProgressAsync(i * 50, 50)
-                    .ToListAsync();
-                var changedFanfics = new List<Fanfic>();
-                for (var j = 0; j < 50; j++)
-                {
-                    var difference = (DateTime.Now - chunk[j].LastModified.GetValueOrDefault()).Days;
-                    if (difference >= fanficFreezingDays)
-                    {
-                        chunk[j].Status = FanficStatus.Frozen;
-                        changedFanfics.Add(chunk[j]);
-                    }
-                }
-
-                await _repository.UpdateRangeAsync(changedFanfics);
-            }
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "An error occured while executing the service");
-        }
-    }
-
     public async Task<ulong?> IncrementFanficViewsCounterAsync(long fanficId)
     {
         try
@@ -232,6 +193,40 @@ public class FanficService : IFanficService
             {
                 PageContent = new List<SimpleFanficDto>()
             };
+        }
+    }
+
+    public async Task<long> CountInProgressAsync() =>
+        await _repository.CountByStatusAsync(FanficStatus.InProgress);
+    
+    public async Task<ICollection<MinifiedFanficDto>> GetMinifiedInProgressAsync(int chunkSize)
+    {
+        try
+        {
+            var fanfics = await _repository.GetAllInProgress(chunkSize).ToListAsync();
+            return _mapper.Map<List<MinifiedFanficDto>>(fanfics);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occured while executing the service");
+            return new List<MinifiedFanficDto>();
+        }
+    }
+
+    public async Task SetFanficStatusAsync(long id, FanficStatus fanficStatus)
+    {
+        try
+        {
+            var fanfic = await _repository.GetAsync(id);
+            if (fanfic is not null)
+            {
+                fanfic.Status = fanficStatus;
+                await _repository.UpdateAsync(fanfic);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occured while executing the service");
         }
     }
 }
