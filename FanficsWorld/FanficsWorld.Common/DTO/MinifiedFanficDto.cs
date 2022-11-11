@@ -8,5 +8,5 @@ public class MinifiedFanficDto
     
     public FanficStatus FanficStatus { get; set; }
     
-    public DateTime? LastModified { get; set; }
+    public DateTime LastModified { get; set; }
 }

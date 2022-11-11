@@ -35,7 +35,7 @@ public class FanficsStatusUpdatingService
                 var chunk = await _fanficService.GetMinifiedInProgressAsync(_fanficStatusUpdatingConfig.ChunkSize);
                 for (var j = 0; j < _fanficStatusUpdatingConfig.ChunkSize; j++)
                 {
-                    var difference = (DateTime.Now - chunk.ElementAt(j).LastModified.GetValueOrDefault()).Days;
+                    var difference = (DateTime.Now - chunk.ElementAt(j).LastModified).Days;
                     if (difference >= _fanficStatusUpdatingConfig.FanficFrozenAfterDays)
                     {
                         await _fanficService.SetFanficStatusAsync(chunk.ElementAt(j).Id, FanficStatus.Frozen);

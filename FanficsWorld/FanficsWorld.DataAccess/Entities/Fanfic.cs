@@ -14,7 +14,7 @@ public class Fanfic
     
     public DateTime CreatedDate { get; set; }
     
-    public DateTime? LastModified { get; set; }
+    public DateTime LastModified { get; set; }
     
     public FanficOrigin Origin { get; set; }
     
