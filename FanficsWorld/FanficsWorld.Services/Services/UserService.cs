@@ -90,6 +90,20 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<ICollection<SimpleUserDto>> GetSimpleUsersChunkAsync(int chunkNumber, int chunkSize)
+    {
+        try
+        {
+            var users = await _repository.GetChunkAsync(chunkNumber, chunkSize);
+            return _mapper.Map<ICollection<SimpleUserDto>>(users);
+        }
+        catch (Exception e)
+        {
+            _logger.LogCritical(e, "An exception occured while executing the service");
+            return new List<SimpleUserDto>();
+        }
+    }
+
     private async Task<string> GenerateTokenAsync(User user)
     {
         var jwtConfig = _configuration.GetSection("JwtConfig");
