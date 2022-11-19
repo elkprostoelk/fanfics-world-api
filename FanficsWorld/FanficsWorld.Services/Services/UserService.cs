@@ -90,17 +90,29 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<ICollection<SimpleUserDto>> GetSimpleUsersChunkAsync(int chunkNumber, int chunkSize)
+    public async Task<ServicePagedResultDto<SimpleUserDto>> GetSimpleUsersChunkAsync(int chunkNumber, int chunkSize, string userId)
     {
         try
         {
             var users = await _repository.GetChunkAsync(chunkNumber, chunkSize);
-            return _mapper.Map<ICollection<SimpleUserDto>>(users);
+            var dtos = _mapper.Map<ICollection<SimpleUserDto>>(users.Where(u => u.Id != userId));
+            var usersCount = await _repository.CountAsync(userId);
+            return new ServicePagedResultDto<SimpleUserDto>
+            {
+                PageContent = dtos,
+                CurrentPage = chunkNumber + 1,
+                ItemsPerPage = chunkSize,
+                TotalItems = usersCount,
+                PagesCount = Convert.ToInt32(Math.Ceiling(usersCount / (double)chunkSize))
+            };
         }
         catch (Exception e)
         {
             _logger.LogCritical(e, "An exception occured while executing the service");
-            return new List<SimpleUserDto>();
+            return new ServicePagedResultDto<SimpleUserDto>
+            {
+                PageContent = new List<SimpleUserDto>()
+            };
         }
     }
 

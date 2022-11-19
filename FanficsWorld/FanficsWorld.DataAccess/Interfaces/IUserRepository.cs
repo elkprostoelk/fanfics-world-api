@@ -9,4 +9,5 @@ public interface IUserRepository
     Task<User?> GetAsync(string login);
     Task<ICollection<User>> GetRangeAsync(ICollection<string> coauthorIds);
     Task<ICollection<User>> GetChunkAsync(int chunkNumber, int chunkSize);
+    Task<long> CountAsync(string? currentUserId);
 }

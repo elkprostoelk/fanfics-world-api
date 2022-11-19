@@ -1,4 +1,5 @@
 ﻿using FanficsWorld.Services.Interfaces;
+using FanficsWorld.WebAPI.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,8 +14,8 @@ public class UserController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("{number:int}/{size:int}")]
+    [HttpGet("get-chunk/{number:int}/{size:int}")]
     [Authorize]
-    public async Task<IActionResult> GetUsersAsync(int number, int size) =>
-        Ok(await _service.GetSimpleUsersChunkAsync(number, size));
+    public async Task<IActionResult> GetUsersAsync(int number=0, int size=10) =>
+        Ok(await _service.GetSimpleUsersChunkAsync(number, size, User.GetUserId()));
 }

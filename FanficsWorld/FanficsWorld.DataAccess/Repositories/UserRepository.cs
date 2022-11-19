@@ -47,4 +47,9 @@ public class UserRepository : IUserRepository
             .Skip(chunkNumber * chunkSize)
             .Take(chunkSize)
             .ToListAsync();
+
+    public async Task<long> CountAsync(string? currentUserId = null) =>
+        await _userManager.Users
+            .Where(u => u.Id != currentUserId)
+            .LongCountAsync();
 }
