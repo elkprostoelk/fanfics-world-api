@@ -22,5 +22,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         
         builder.Property(u => u.UserName)
             .HasMaxLength(20);
+
+        builder.HasIndex(u => u.UserName)
+            .IsUnique();
+        builder.HasIndex(u => u.NormalizedUserName)
+            .IsUnique();
+        
+        builder.HasIndex(u => u.Email)
+            .IsUnique();
+        builder.HasIndex(u => u.NormalizedEmail)
+            .IsUnique();
     }
 }
