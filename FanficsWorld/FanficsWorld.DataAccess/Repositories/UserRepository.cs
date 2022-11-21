@@ -44,6 +44,7 @@ public class UserRepository : IUserRepository
 
     public async Task<ICollection<User>> GetChunkAsync(int chunkNumber, int chunkSize) =>
         await _userManager.Users.AsNoTracking()
+            .OrderBy(u => u.UserName)
             .Skip(chunkNumber * chunkSize)
             .Take(chunkSize)
             .ToListAsync();
