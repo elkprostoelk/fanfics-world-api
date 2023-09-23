@@ -62,7 +62,7 @@ public class FanficController : ControllerBase
         
         return createdFanficId.HasValue
             ? StatusCode(201, createdFanficId)
-            : Conflict("An error occured while creating a fanfic");
+            : BadRequest("An error occured while creating a fanfic");
     }
 
     [Authorize]
@@ -83,7 +83,7 @@ public class FanficController : ControllerBase
         var added = await _service.AddTagsToFanficAsync(fanficId, addTagsDto);
         return added
             ? Ok("Tags are added!")
-            : Conflict("An error occured while adding tags to the fanfic");
+            : BadRequest("An error occured while adding tags to the fanfic");
     }
 
     [HttpPatch("increment-views/{id:long}")]
@@ -101,7 +101,7 @@ public class FanficController : ControllerBase
             var updatedCounter = await _service.IncrementFanficViewsCounterAsync(id);
             return updatedCounter.HasValue
                 ? Ok(updatedCounter)
-                : Conflict($"Fanfic {id} views were not incremented!");
+                : BadRequest($"Fanfic {id} views were not incremented!");
         }
         finally
         {
@@ -126,6 +126,6 @@ public class FanficController : ControllerBase
 
         var deleted = await _service.DeleteAsync(id);
         
-        return deleted ? NoContent() : Conflict("An error occured while deleting a fanfic");
+        return deleted ? NoContent() : BadRequest("An error occured while deleting a fanfic");
     }
 }

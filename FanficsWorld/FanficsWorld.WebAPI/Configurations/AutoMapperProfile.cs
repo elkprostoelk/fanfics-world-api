@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using FanficsWorld.Common.DTO;
+using FanficsWorld.Common.Extensions;
 using FanficsWorld.DataAccess.Entities;
+using Microsoft.OpenApi.Extensions;
 
 namespace FanficsWorld.WebAPI.Configurations;
 
@@ -26,7 +28,15 @@ public class AutoMapperProfile : Profile
             .ForMember(dto => dto.Author,
                 opts => opts.MapFrom(f => f.Author))
             .ForMember(dto => dto.Fandoms,
-                opts => opts.MapFrom(f => f.Fandoms));
+                opts => opts.MapFrom(f => f.Fandoms))
+            .ForMember(dto => dto.Direction,
+                opts => opts.MapFrom(f => f.Direction.GetDisplayAttribute()))
+            .ForMember(dto => dto.Origin,
+                opts => opts.MapFrom(f => f.Origin.GetDisplayAttribute()))
+            .ForMember(dto => dto.Rating,
+                opts => opts.MapFrom(f => f.Rating.GetDisplayAttribute()))
+            .ForMember(dto => dto.Status,
+                opts => opts.MapFrom(f => f.Status.GetDisplayAttribute()));
         
         CreateMap<Fandom, FandomDto>()
             .ForMember(dto => dto.Fanfics,

@@ -2,6 +2,7 @@
 using FanficsWorld.DataAccess;
 using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.Services.Interfaces;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,53 +15,62 @@ public static class ApplicationBuilderExtensions
         var serviceScopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
         using var serviceScope = serviceScopeFactory.CreateScope();
         await using var dbContext = serviceScope.ServiceProvider.GetRequiredService<FanficsDbContext>();
-        if (dbContext is not null)
+        await dbContext.Database.EnsureCreatedAsync();
+        var userService = serviceScope.ServiceProvider.GetRequiredService<IUserService>();
+        var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<User>>();
+        var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var logger = app.Logger;
+        if (!await roleManager.Roles.AnyAsync())
         {
-            await dbContext.Database.EnsureCreatedAsync();
-            var userService = serviceScope.ServiceProvider.GetRequiredService<IUserService>();
-            var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<User>>();
-            var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var logger = app.Logger;
-            if (!await roleManager.Roles.AnyAsync())
+            var adminRoleAdded = await roleManager.CreateAsync(new IdentityRole("Admin"));
+            var userRoleAdded = await roleManager.CreateAsync(new IdentityRole("User"));
+            if (adminRoleAdded.Succeeded && userRoleAdded.Succeeded)
             {
-                var adminRoleAdded = await roleManager.CreateAsync(new IdentityRole("Admin"));
-                var userRoleAdded = await roleManager.CreateAsync(new IdentityRole("User"));
-                if (adminRoleAdded.Succeeded && userRoleAdded.Succeeded)
+                logger.LogInformation("Admin, User roles were added!");
+            }
+            else
+            {
+                if (!adminRoleAdded.Succeeded)
                 {
-                    logger.LogInformation("Admin, User roles were added!");
+                    logger.LogError("Admin role was not added! Errors: {ErrorsList}", adminRoleAdded.Errors);
                 }
-                else
+                if (!userRoleAdded.Succeeded)
                 {
-                    if (!adminRoleAdded.Succeeded)
-                    {
-                        logger.LogError("Admin role was not added!");
-                    }
-                    if (!userRoleAdded.Succeeded)
-                    {
-                        logger.LogError("User role was not added!");
-                    }
+                    logger.LogError("User role was not added! Errors: {ErrorsList}", adminRoleAdded.Errors);
                 }
             }
-            if (await userManager.FindByEmailAsync("admin@admin.com") is null)
+        }
+
+        var adminSettings = configuration.GetSection("AdminSettings")
+            .Get<RegisterUserDto>();
+        if (await userManager.FindByEmailAsync(adminSettings.Email) is null)
+        {
+            var registered = await userService.RegisterUserAsync(adminSettings);
+            if (registered is not null)
             {
-                var registered = await userService.RegisterUserAsync(new RegisterUserDto
-                {
-                    UserName = "admin",
-                    Password = configuration.GetValue<string>("AdminPassword"),
-                    Email = "admin@admin.com",
-                    Age = 18,
-                    PhoneNumber = "+380000000000",
-                    Role = "Admin"
-                });
-                if (registered)
+                if (registered.Succeeded)
                 {
                     logger.LogInformation("Admin user was registered!");
                 }
                 else
                 {
-                    logger.LogError("Admin user was not registered!");
+                    logger.LogError(
+                        "Admin user was not registered! Errors: {ErrorsList}",
+                        registered.Errors);
                 }
             }
         }
+    }
+
+    public static void UseFsExceptionHandler(this WebApplication app, ILogger logger)
+    {
+        app.UseExceptionHandler(appBuilder => appBuilder.Run(async context =>
+        {
+            var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+            var exception = exceptionHandlerPathFeature.Error;
+            logger.LogCritical(exception, "An exception occured while processing the request");
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsJsonAsync(new { error = "Internal Server Error" });
+        }));
     }
 }

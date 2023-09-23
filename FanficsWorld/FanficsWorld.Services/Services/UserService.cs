@@ -8,7 +8,6 @@ using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FanficsWorld.Services.Services;
@@ -17,56 +16,41 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _repository;
     private readonly IMapper _mapper;
-    private readonly ILogger<UserService> _logger;
     private readonly IConfiguration _configuration;
     private readonly UserManager<User> _userManager;
 
     public UserService(
         IUserRepository repository,
         IMapper mapper,
-        ILogger<UserService> logger,
         IConfiguration configuration,
         UserManager<User> userManager)
     {
         _repository = repository;
         _mapper = mapper;
-        _logger = logger;
         _configuration = configuration;
         _userManager = userManager;
     }
 
-    public async Task<bool> RegisterUserAsync(RegisterUserDto registerUserDto)
+    public async Task<IdentityResult?> RegisterUserAsync(RegisterUserDto registerUserDto)
     {
         var user = _mapper.Map<User>(registerUserDto);
-        try
-        {
-            var result = await _repository.RegisterUserAsync(user, registerUserDto.Password, registerUserDto.Role);
-            return result.Succeeded;
-        }
-        catch (Exception e)
-        {
-            _logger.LogCritical(e, "An exception occured while executing the service");
-            return false;
-        }
+        return await _repository.RegisterUserAsync(
+            user,
+            registerUserDto.Password,
+            registerUserDto.Role);
     }
 
     public async Task<UserTokenDto?> ValidateUserAsync(LoginUserDto loginUserDto)
     {
-        try
+        var user = await _repository.GetAsync(loginUserDto.Login);
+        if (user is null)
         {
-            var user = await _repository.GetAsync(loginUserDto.Login);
-            if (user is null)
-            {
-                return null;
-            }
-            var passwordValid = await _userManager.CheckPasswordAsync(user, loginUserDto.Password);
-            return passwordValid ? new UserTokenDto {Jwt = await GenerateTokenAsync(user)} : null;
-        }
-        catch (Exception e)
-        {
-            _logger.LogCritical(e, "An exception occured while executing the service");
             return null;
         }
+        var passwordValid = await _userManager.CheckPasswordAsync(user, loginUserDto.Password);
+        return passwordValid
+            ? new UserTokenDto {Jwt = await GenerateTokenAsync(user)}
+            : null;
     }
 
     public async Task<bool> UserExistsAsync(string idOrUserName) => 
@@ -75,45 +59,27 @@ public class UserService : IUserService
 
     public async Task<bool> ChangePasswordAsync(string id, ChangePasswordDto changePasswordDto)
     {
-        try
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            var result =
-                await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword,
-                    changePasswordDto.NewPassword);
-            return result.Succeeded;
-        }
-        catch (Exception e)
-        {
-            _logger.LogCritical(e, "An exception occured while executing the service");
-            return false;
-        }
+        var user = await _userManager.FindByIdAsync(id);
+        var result = await _userManager.ChangePasswordAsync(
+            user,
+            changePasswordDto.CurrentPassword,
+            changePasswordDto.NewPassword);
+        return result.Succeeded;
     }
 
     public async Task<ServicePagedResultDto<SimpleUserDto>> GetSimpleUsersChunkAsync(int chunkNumber, int chunkSize, string userId)
     {
-        try
+        var users = await _repository.GetChunkAsync(chunkNumber, chunkSize);
+        var dtos = _mapper.Map<ICollection<SimpleUserDto>>(users.Where(u => u.Id != userId));
+        var usersCount = await _repository.CountAsync(userId);
+        return new ServicePagedResultDto<SimpleUserDto>
         {
-            var users = await _repository.GetChunkAsync(chunkNumber, chunkSize);
-            var dtos = _mapper.Map<ICollection<SimpleUserDto>>(users.Where(u => u.Id != userId));
-            var usersCount = await _repository.CountAsync(userId);
-            return new ServicePagedResultDto<SimpleUserDto>
-            {
-                PageContent = dtos,
-                CurrentPage = chunkNumber + 1,
-                ItemsPerPage = chunkSize,
-                TotalItems = usersCount,
-                PagesCount = Convert.ToInt32(Math.Ceiling(usersCount / (double)chunkSize))
-            };
-        }
-        catch (Exception e)
-        {
-            _logger.LogCritical(e, "An exception occured while executing the service");
-            return new ServicePagedResultDto<SimpleUserDto>
-            {
-                PageContent = new List<SimpleUserDto>()
-            };
-        }
+            PageContent = dtos,
+            CurrentPage = chunkNumber + 1,
+            ItemsPerPage = chunkSize,
+            TotalItems = usersCount,
+            PagesCount = Convert.ToInt32(Math.Ceiling(usersCount / (double)chunkSize))
+        };
     }
 
     private async Task<string> GenerateTokenAsync(User user)

@@ -41,7 +41,7 @@ public class FandomController : ControllerBase
         
         return createdFandomId.HasValue
             ? StatusCode(201, createdFandomId)
-            : Conflict("An error occured while creating a fandom");
+            : BadRequest("An error occured while creating a fandom");
     }
 
     [HttpGet("{id:long}")]

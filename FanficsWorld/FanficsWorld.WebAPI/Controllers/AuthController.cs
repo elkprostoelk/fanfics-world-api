@@ -61,9 +61,9 @@ public class AuthController : ControllerBase
         }
         
         var registered = await _userService.RegisterUserAsync(registerUserDto);
-        return registered
+        return registered.Succeeded
             ? StatusCode(201)
-            : Conflict("An error occured while registering the user");
+            : BadRequest("An error occured while registering the user");
     }
 
     [Authorize]
@@ -86,6 +86,6 @@ public class AuthController : ControllerBase
         var changed = await _userService.ChangePasswordAsync(id, changePasswordDto);
         return changed
             ? NoContent()
-            : Conflict("Error while changing a password!");
+            : BadRequest("Error while changing a password!");
     }
 }

@@ -23,56 +23,23 @@ public class TagService : ITagService
 
     public async Task<ICollection<TagDto>?> GetAllAsync()
     {
-        try
-        {
-            var tags = await _repository.GetAllAsync();
-            return _mapper.Map<ICollection<TagDto>>(tags);
-        }
-        catch (Exception e)
-        {
-            _logger.LogCritical(e, "An exception occured while executing the service");
-            return null;
-        }
+        var tags = await _repository.GetAllAsync();
+        return _mapper.Map<ICollection<TagDto>>(tags);
     }
 
     public async Task<ICollection<TagDto>?> GetTop10Async()
     {
-        try
-        {
-            var tags = await _repository.GetTop10Async();
-            return _mapper.Map<ICollection<TagDto>>(tags);
-        }
-        catch (Exception e)
-        {
-            _logger.LogCritical(e, "An exception occured while executing the service");
-            return null;
-        }
+        var tags = await _repository.GetTop10Async();
+        return _mapper.Map<ICollection<TagDto>>(tags);
     }
 
-    public async Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await _repository.ContainsAllAsync(ids, cancellationToken);
-        }
-        catch (Exception e)
-        {
-            _logger.LogCritical(e, "An exception occured while executing the service");
-            return false;
-        }
-    }
+    public async Task<bool> ContainsAllAsync(ICollection<long> ids,
+        CancellationToken cancellationToken) =>
+        await _repository.ContainsAllAsync(ids, cancellationToken);
 
     public async Task<TagWithFanficsDto?> GetFullByIdAsync(long id)
     {
-        try
-        {
-            var tag = await _repository.GetAsync(id);
-            return _mapper.Map<TagWithFanficsDto>(tag);
-        }
-        catch (Exception e)
-        {
-            _logger.LogCritical(e, "An exception occured while executing the service");
-            return null;
-        }
+        var tag = await _repository.GetAsync(id);
+        return _mapper.Map<TagWithFanficsDto>(tag);
     }
 }

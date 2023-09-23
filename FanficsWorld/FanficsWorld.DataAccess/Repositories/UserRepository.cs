@@ -28,8 +28,8 @@ public class UserRepository : IUserRepository
             var roleAddingResult = await _userManager.AddToRoleAsync(user, role);
             if (!roleAddingResult.Succeeded)
             {
-                _logger.LogError("Error(s) occured while adding user {0} to role {1}: {2}", 
-                    user.Id, role, String.Join(", ", result.Errors.Select(err => $"{err.Code}: {err.Description}")));
+                _logger.LogError("Error(s) occured while adding user {UserId} to role {Role}: {ErrorsList}", 
+                    user.Id, role, string.Join(", ", result.Errors.Select(err => $"{err.Code}: {err.Description}")));
             }
         }
         
@@ -51,6 +51,5 @@ public class UserRepository : IUserRepository
 
     public async Task<long> CountAsync(string? currentUserId = null) =>
         await _userManager.Users
-            .Where(u => u.Id != currentUserId)
-            .LongCountAsync();
+            .LongCountAsync(u => u.Id != currentUserId);
 }

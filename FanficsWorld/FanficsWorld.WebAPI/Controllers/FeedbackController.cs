@@ -21,7 +21,7 @@ namespace FanficsWorld.WebAPI.Controllers
         public async Task<IActionResult> SendFeedbackAsync(SendFeedbackDto request)
         {
             var sent = await _service.SendFeedbackAsync(request);
-            return sent ? Ok() : Conflict();
+            return sent ? Ok() : BadRequest();
         }
     }
 }

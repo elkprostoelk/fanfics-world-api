@@ -14,13 +14,13 @@ public class SimpleFanficDto
     
     public DateTime? LastModified { get; set; }
     
-    public FanficOrigin Origin { get; set; }
+    public string Origin { get; set; }
     
-    public FanficStatus Status { get; set; }
+    public string Status { get; set; }
     
-    public FanficRating Rating { get; set; }
+    public string Rating { get; set; }
     
-    public FanficDirection Direction { get; set; }
+    public string Direction { get; set; }
     
     public SimpleUserDto Author { get; set; }
 

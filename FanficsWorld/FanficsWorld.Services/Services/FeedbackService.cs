@@ -27,21 +27,13 @@ public class FeedbackService : IFeedbackService
     
     public async Task<bool> SendFeedbackAsync(SendFeedbackDto request)
     {
-        try
+        var feedback = new Feedback
         {
-            var feedback = new Feedback
-            {
-                Name = _sanitizer.Sanitize(request.Name),
-                Text = _sanitizer.Sanitize(request.Text),
-                Email = request.Email,
-                Reviewed = false
-            };
-            return await _repository.SendAsync(feedback);
-        }
-        catch (Exception e)
-        {
-            _logger.LogCritical(e, "An exception occured while executing the service");
-            return false;
-        }
+            Name = _sanitizer.Sanitize(request.Name),
+            Text = _sanitizer.Sanitize(request.Text),
+            Email = request.Email,
+            Reviewed = false
+        };
+        return await _repository.SendAsync(feedback);
     }
 }
