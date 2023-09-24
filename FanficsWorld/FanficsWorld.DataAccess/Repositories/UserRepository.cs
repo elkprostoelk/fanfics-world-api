@@ -2,6 +2,7 @@
 using FanficsWorld.DataAccess.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.DataAccess.Repositories;
@@ -10,13 +11,16 @@ public class UserRepository : IUserRepository
 {
     private readonly UserManager<User> _userManager;
     private readonly ILogger<UserRepository> _logger;
+    private readonly IMemoryCache _cache;
 
     public UserRepository(
         UserManager<User> userManager,
-        ILogger<UserRepository> logger)
+        ILogger<UserRepository> logger,
+        IMemoryCache cache)
     {
         _userManager = userManager;
         _logger = logger;
+        _cache = cache;
     }
     
     public async Task<IdentityResult> RegisterUserAsync(User user, string password, string role)
@@ -42,12 +46,23 @@ public class UserRepository : IUserRepository
     public async Task<ICollection<User>> GetRangeAsync(ICollection<string> coauthorIds) =>
         await _userManager.Users.Where(u => coauthorIds.Contains(u.Id)).ToListAsync();
 
-    public async Task<ICollection<User>> GetChunkAsync(int chunkNumber, int chunkSize) =>
-        await _userManager.Users.AsNoTracking()
-            .OrderBy(u => u.UserName)
-            .Skip(chunkNumber * chunkSize)
-            .Take(chunkSize)
-            .ToListAsync();
+    public async Task<ICollection<User>> GetChunkAsync(int chunkNumber, int chunkSize)
+    {
+        var cacheKey = $"users_chunk_no_{chunkNumber}_size_{chunkSize}";
+        var isListCached = _cache.TryGetValue(cacheKey, out List<User> users);
+
+        if (!isListCached)
+        {
+            users = await _userManager.Users.AsNoTracking()
+                .OrderBy(u => u.UserName)
+                .Skip(chunkNumber * chunkSize)
+                .Take(chunkSize)
+                .ToListAsync();
+            _cache.Set(cacheKey, users, TimeSpan.FromHours(1));
+        }
+        
+        return users;
+    }
 
     public async Task<long> CountAsync(string? currentUserId = null) =>
         await _userManager.Users

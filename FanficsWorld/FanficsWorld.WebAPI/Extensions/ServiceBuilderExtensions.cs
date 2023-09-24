@@ -30,6 +30,7 @@ public static class ServiceBuilderExtensions
     {
         services.AddDbContext<FanficsDbContext>(x =>
             x.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        services.AddMemoryCache();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         
