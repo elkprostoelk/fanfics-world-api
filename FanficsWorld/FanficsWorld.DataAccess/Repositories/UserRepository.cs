@@ -46,18 +46,31 @@ public class UserRepository : IUserRepository
     public async Task<ICollection<User>> GetRangeAsync(ICollection<string> coauthorIds) =>
         await _userManager.Users.Where(u => coauthorIds.Contains(u.Id)).ToListAsync();
 
-    public async Task<ICollection<User>> GetChunkAsync(int chunkNumber, int chunkSize)
+    public async Task<ICollection<User>> GetChunkAsync(string? userName, int chunkNumber, int chunkSize)
     {
         var cacheKey = $"users_chunk_no_{chunkNumber}_size_{chunkSize}";
+        var isSearchByName = !string.IsNullOrWhiteSpace(userName);
+        if (isSearchByName)
+        {
+            cacheKey = string.Concat(cacheKey, $"_username_{userName}");
+        }
+        
         var isListCached = _cache.TryGetValue(cacheKey, out List<User> users);
-
         if (!isListCached)
         {
-            users = await _userManager.Users.AsNoTracking()
+            IQueryable<User> usersQuery = _userManager.Users.AsNoTracking()
                 .OrderBy(u => u.UserName)
                 .Skip(chunkNumber * chunkSize)
-                .Take(chunkSize)
+                .Take(chunkSize);
+            
+            if (isSearchByName)
+            {
+                usersQuery = usersQuery.Where(u =>
+                    u.UserName.Contains(userName!));
+            }
+            users = await usersQuery
                 .ToListAsync();
+            
             _cache.Set(cacheKey, users, TimeSpan.FromHours(1));
         }
         
