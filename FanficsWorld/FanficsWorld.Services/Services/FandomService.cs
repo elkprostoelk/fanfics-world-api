@@ -3,6 +3,7 @@ using FanficsWorld.Common.DTO;
 using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.Services.Services;
 
@@ -24,6 +25,11 @@ public class FandomService : IFandomService
         var fandoms = await _repository.GetTop10Async();
         return _mapper.Map<ICollection<SimpleFandomDto>>(fandoms);
     }
+
+    public async Task<List<SimpleFandomDto>> SearchByTitleAsync(string title) =>
+        await _repository.GetFandoms(title)
+            .Select(fdom => _mapper.Map<SimpleFandomDto>(fdom))
+            .ToListAsync();
 
     public async Task<long?> CreateAsync(NewFandomDto newFandomDto)
     {

@@ -19,7 +19,14 @@ public class FandomRepository : IFandomRepository
             .OrderByDescending(fdom => fdom.Fanfics.Count)
             .ThenBy(fdom => fdom.Title)
             .AsNoTracking()
-            .Take(10).ToListAsync();
+            .Take(10)
+            .ToListAsync();
+
+    public IQueryable<Fandom> GetFandoms(string title) =>
+        _context.Fandoms
+            .AsNoTracking()
+            .Where(fdom => fdom.Title.Contains(title))
+            .Take(10);
 
     public async Task<ICollection<Fandom>> GetRangeAsync(ICollection<long> fandomIds) =>
         await _context.Fandoms

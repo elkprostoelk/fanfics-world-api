@@ -1,5 +1,4 @@
 using FanficsWorld.WebAPI.Extensions;
-using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,12 +14,6 @@ builder.Services.AddConfigurations(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddCors();
-builder.Services.AddApiVersioning(config =>
-{
-    config.DefaultApiVersion = new ApiVersion(1, 0);
-    config.AssumeDefaultVersionWhenUnspecified = true;
-    config.ReportApiVersions = true;
-});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

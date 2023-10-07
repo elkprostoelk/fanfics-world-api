@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace FanficsWorld.WebAPI.Controllers.v2;
 
 [ApiController]
-[ApiVersion("2")]
 [Route("api/v2/[controller]")]
 public class UserController : ControllerBase
 {
