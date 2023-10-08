@@ -22,6 +22,10 @@ public class TagController : ControllerBase
     public async Task<IActionResult> GetTop10TagsAsync() =>
         Ok(await _service.GetTop10Async());
 
+    [HttpGet("search")]
+    public async Task<IActionResult> GetTagsByTitleAsync(string title) =>
+        Ok(await _service.GetAllAsync(title));
+
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetTagWithFanfics(long id)
     {

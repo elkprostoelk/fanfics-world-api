@@ -13,8 +13,8 @@ public class TagRepository : ITagRepository
         _context = context;
     }
 
-    public async Task<ICollection<Tag>> GetAllAsync() =>
-        await _context.Tags.AsNoTracking().ToListAsync();
+    public IQueryable<Tag> GetAll() =>
+        _context.Tags.AsNoTracking();
 
     public async Task<ICollection<Tag>> GetTop10Async() =>
         await _context.Tags

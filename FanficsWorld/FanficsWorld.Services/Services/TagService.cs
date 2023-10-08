@@ -2,6 +2,7 @@
 using FanficsWorld.Common.DTO;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.Services.Services;
@@ -21,10 +22,15 @@ public class TagService : ITagService
         _logger = logger;
     }
 
-    public async Task<ICollection<TagDto>?> GetAllAsync()
+    public async Task<ICollection<TagDto>?> GetAllAsync(string? title = null)
     {
-        var tags = await _repository.GetAllAsync();
-        return _mapper.Map<ICollection<TagDto>>(tags);
+        var tagsReq = _repository.GetAll();
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+            tagsReq = tagsReq.Where(tag => tag.Name.Contains(title));
+        }
+
+        return await tagsReq.Select(tag => _mapper.Map<TagDto>(tag)).ToListAsync();
     }
 
     public async Task<ICollection<TagDto>?> GetTop10Async()
