@@ -9,7 +9,7 @@ public interface IFanficRepository
     Task<long?> AddAsync(Fanfic fanfic);
     Task<bool> DeleteAsync(Fanfic fanfic);
     Task<bool> UpdateAsync(Fanfic fanfic);
-    IQueryable<Fanfic> GetAllPagedAsync(int pageNumber, int takeCount);
+    IQueryable<Fanfic> GetAllPaged(int pageNumber, int takeCount);
     IQueryable<Fanfic> GetAllInProgress(int takeCount);
     Task<long> CountAsync();
     Task UpdateRangeAsync(ICollection<Fanfic> changedFanfics);

@@ -41,7 +41,7 @@ public class FanficRepository : IFanficRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public IQueryable<Fanfic> GetAllPagedAsync(int pageNumber, int takeCount) =>
+    public IQueryable<Fanfic> GetAllPaged(int pageNumber, int takeCount) =>
         _context.Fanfics.OrderBy(ffic => ffic.Id)
             .Skip((pageNumber - 1) * takeCount)
             .Take(takeCount)

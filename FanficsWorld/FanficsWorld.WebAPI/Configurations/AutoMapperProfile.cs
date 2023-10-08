@@ -29,6 +29,8 @@ public class AutoMapperProfile : Profile
                 opts => opts.MapFrom(f => f.Author))
             .ForMember(dto => dto.Fandoms,
                 opts => opts.MapFrom(f => f.Fandoms))
+            .ForMember(dto => dto.Tags,
+                opts => opts.MapFrom(f => f.Tags))
             .ForMember(dto => dto.Direction,
                 opts => opts.MapFrom(f => f.Direction.GetDisplayAttribute()))
             .ForMember(dto => dto.Origin,

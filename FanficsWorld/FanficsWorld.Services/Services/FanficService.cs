@@ -128,7 +128,7 @@ public class FanficService : IFanficService
 
     public async Task<ServicePagedResultDto<SimpleFanficDto>> GetPageWithFanficsAsync(int page, int itemsPerPage)
     {
-        var fanfics = await _repository.GetAllPagedAsync(page, itemsPerPage)
+        var fanfics = await _repository.GetAllPaged(page, itemsPerPage)
             .ToListAsync();
         var fanficDtos = _mapper.Map<ICollection<SimpleFanficDto>>(fanfics);
         var totalItems = await _repository.CountAsync();
