@@ -3,24 +3,14 @@ using FanficsWorld.Common.DTO;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.Services.Services;
 
-public class TagService : ITagService
+public class TagService(ITagRepository repository,
+    IMapper mapper) : ITagService
 {
-    private readonly ITagRepository _repository;
-    private readonly IMapper _mapper;
-    private readonly ILogger<TagService> _logger;
-
-    public TagService(ITagRepository repository,
-        IMapper mapper,
-        ILogger<TagService> logger)
-    {
-        _repository = repository;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    private readonly ITagRepository _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<ICollection<TagDto>?> GetAllAsync(string? title = null)
     {

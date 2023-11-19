@@ -9,18 +9,12 @@ namespace FanficsWorld.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class FandomController : ControllerBase
+public class FandomController(
+    IFandomService service,
+    IValidator<NewFandomDto> newFandomValidator) : ControllerBase
 {
-    private readonly IFandomService _service;
-    private readonly IValidator<NewFandomDto> _newFandomValidator;
-
-    public FandomController(
-        IFandomService service,
-        IValidator<NewFandomDto> newFandomValidator)
-    {
-        _service = service;
-        _newFandomValidator = newFandomValidator;
-    }
+    private readonly IFandomService _service = service;
+    private readonly IValidator<NewFandomDto> _newFandomValidator = newFandomValidator;
 
     [HttpGet("top10")]
     public async Task<IActionResult> GetTop10FandomsAsync() => 

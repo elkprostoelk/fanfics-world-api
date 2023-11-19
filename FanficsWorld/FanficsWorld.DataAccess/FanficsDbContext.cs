@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.DataAccess;
 
-public class FanficsDbContext : IdentityDbContext<User>
+public class FanficsDbContext(DbContextOptions<FanficsDbContext> options) : IdentityDbContext<User>(options)
 {
     public DbSet<Fanfic> Fanfics { get; set; }
     
@@ -14,10 +14,6 @@ public class FanficsDbContext : IdentityDbContext<User>
     public DbSet<Tag> Tags { get; set; }
     
     public DbSet<Feedback> Feedbacks { get; set; }
-
-    public FanficsDbContext(DbContextOptions<FanficsDbContext> options) : base(options)
-    {
-    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

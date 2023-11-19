@@ -12,26 +12,18 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace FanficsWorld.Services.Services;
 
-public class UserService : IUserService
+public class UserService(
+    IUserRepository repository,
+    IMapper mapper,
+    IConfiguration configuration,
+    UserManager<User> userManager) : IUserService
 {
-    private readonly IUserRepository _repository;
-    private readonly IMapper _mapper;
-    private readonly IConfiguration _configuration;
-    private readonly UserManager<User> _userManager;
+    private readonly IUserRepository _repository = repository;
+    private readonly IMapper _mapper = mapper;
+    private readonly IConfiguration _configuration = configuration;
+    private readonly UserManager<User> _userManager = userManager;
 
-    public UserService(
-        IUserRepository repository,
-        IMapper mapper,
-        IConfiguration configuration,
-        UserManager<User> userManager)
-    {
-        _repository = repository;
-        _mapper = mapper;
-        _configuration = configuration;
-        _userManager = userManager;
-    }
-
-    public async Task<IdentityResult?> RegisterUserAsync(RegisterUserDto registerUserDto)
+    public async Task<IdentityResult> RegisterUserAsync(RegisterUserDto registerUserDto)
     {
         var user = _mapper.Map<User>(registerUserDto);
         return await _repository.RegisterUserAsync(
@@ -59,7 +51,12 @@ public class UserService : IUserService
 
     public async Task<bool> ChangePasswordAsync(string id, ChangePasswordDto changePasswordDto)
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await _repository.GetAsync(id);
+        if (user is null)
+        {
+            return false;
+        }
+
         var result = await _userManager.ChangePasswordAsync(
             user,
             changePasswordDto.CurrentPassword,
@@ -86,14 +83,14 @@ public class UserService : IUserService
     private async Task<string> GenerateTokenAsync(User user)
     {
         var jwtConfig = _configuration.GetSection("JwtConfig");
-        var key = Encoding.UTF8.GetBytes(jwtConfig["Secret"]);
+        var key = Encoding.UTF8.GetBytes(jwtConfig["Secret"]!);
         var secret = new SymmetricSecurityKey(key);
         var credentials = new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         
         var claims = new List<Claim>
         {
             new (ClaimTypes.NameIdentifier, user.Id),
-            new (ClaimTypes.Name, user.UserName)
+            new (ClaimTypes.Name, user.UserName!)
         };
         var roles = await _userManager.GetRolesAsync(user);
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));

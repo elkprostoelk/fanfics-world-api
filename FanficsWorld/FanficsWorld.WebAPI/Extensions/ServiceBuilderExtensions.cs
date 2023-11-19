@@ -9,7 +9,7 @@ using FanficsWorld.Services.Jobs;
 using FanficsWorld.Services.Services;
 using FanficsWorld.WebAPI.Validators;
 using FluentValidation;
-using Ganss.XSS;
+using Ganss.Xss;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -53,8 +53,6 @@ public static class ServiceBuilderExtensions
         
         services.AddQuartz(q =>
         {
-            q.UseMicrosoftDependencyInjectionJobFactory();
-
             q.AddJobAndTrigger<FanficStatusUpdatingJob>(configuration);
         });
 
@@ -76,7 +74,7 @@ public static class ServiceBuilderExtensions
     public static void ConfigureJwt(this IServiceCollection services, IConfiguration configuration)
     {
         var jwtConfiguration = configuration.GetSection("JwtConfig");
-        var secretKey = jwtConfiguration["Secret"];
+        var secretKey = jwtConfiguration["Secret"]!;
         services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

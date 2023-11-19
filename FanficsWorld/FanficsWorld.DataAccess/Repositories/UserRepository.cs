@@ -7,22 +7,15 @@ using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.DataAccess.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository(
+    UserManager<User> userManager,
+    ILogger<UserRepository> logger,
+    IMemoryCache cache) : IUserRepository
 {
-    private readonly UserManager<User> _userManager;
-    private readonly ILogger<UserRepository> _logger;
-    private readonly IMemoryCache _cache;
+    private readonly UserManager<User> _userManager = userManager;
+    private readonly ILogger<UserRepository> _logger = logger;
+    private readonly IMemoryCache _cache = cache;
 
-    public UserRepository(
-        UserManager<User> userManager,
-        ILogger<UserRepository> logger,
-        IMemoryCache cache)
-    {
-        _userManager = userManager;
-        _logger = logger;
-        _cache = cache;
-    }
-    
     public async Task<IdentityResult> RegisterUserAsync(User user, string password, string role)
     {
         var result = await _userManager.CreateAsync(user, password);
@@ -40,8 +33,15 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<User?> GetAsync(string login) =>
-        await _userManager.FindByNameAsync(login);
+    public async Task<User?> GetAsync(string idOrUserName)
+    {
+        if (Guid.TryParse(idOrUserName, out var id))
+        {
+            return await _userManager.FindByIdAsync(id.ToString());
+        }
+
+        return await _userManager.FindByNameAsync(idOrUserName);
+    }
 
     public async Task<ICollection<User>> GetRangeAsync(ICollection<string> coauthorIds) =>
         await _userManager.Users.Where(u => coauthorIds.Contains(u.Id)).ToListAsync();
@@ -55,7 +55,7 @@ public class UserRepository : IUserRepository
             cacheKey = string.Concat(cacheKey, $"_username_{userName}");
         }
         
-        var isListCached = _cache.TryGetValue(cacheKey, out List<User> users);
+        var isListCached = _cache.TryGetValue(cacheKey, out List<User>? users);
         if (!isListCached)
         {
             IQueryable<User> usersQuery = _userManager.Users.AsNoTracking()
@@ -66,7 +66,7 @@ public class UserRepository : IUserRepository
             if (isSearchByName)
             {
                 usersQuery = usersQuery.Where(u =>
-                    u.UserName.Contains(userName!));
+                    u.UserName!.Contains(userName!));
             }
             users = await usersQuery
                 .ToListAsync();
@@ -74,7 +74,7 @@ public class UserRepository : IUserRepository
             _cache.Set(cacheKey, users, TimeSpan.FromHours(1));
         }
         
-        return users;
+        return users ?? [];
     }
 
     public async Task<long> CountAsync(string? currentUserId = null) =>

@@ -2,7 +2,6 @@
 using FanficsWorld.Common.DTO;
 using FanficsWorld.Common.Extensions;
 using FanficsWorld.DataAccess.Entities;
-using Microsoft.OpenApi.Extensions;
 
 namespace FanficsWorld.WebAPI.Configurations;
 

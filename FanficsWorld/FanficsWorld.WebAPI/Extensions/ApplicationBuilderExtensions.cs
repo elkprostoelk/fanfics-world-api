@@ -10,7 +10,7 @@ namespace FanficsWorld.WebAPI.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
-    public static async Task SeedDatabaseAsync(this WebApplication app, IConfiguration configuration)
+    public static async Task SeedDatabaseAsync(this WebApplication app, IConfiguration configuration, ILogger logger)
     {
         var serviceScopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
         using var serviceScope = serviceScopeFactory.CreateScope();
@@ -19,7 +19,6 @@ public static class ApplicationBuilderExtensions
         var userService = serviceScope.ServiceProvider.GetRequiredService<IUserService>();
         var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<User>>();
         var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var logger = app.Logger;
         if (!await roleManager.Roles.AnyAsync())
         {
             var adminRoleAdded = await roleManager.CreateAsync(new IdentityRole("Admin"));
@@ -43,7 +42,7 @@ public static class ApplicationBuilderExtensions
 
         var adminSettings = configuration.GetSection("AdminSettings")
             .Get<RegisterUserDto>();
-        if (await userManager.FindByEmailAsync(adminSettings.Email) is null)
+        if (await userManager.FindByEmailAsync(adminSettings!.Email) is null)
         {
             var registered = await userService.RegisterUserAsync(adminSettings);
             if (registered is not null)
@@ -67,8 +66,8 @@ public static class ApplicationBuilderExtensions
         app.UseExceptionHandler(appBuilder => appBuilder.Run(async context =>
         {
             var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-            var exception = exceptionHandlerPathFeature.Error;
-            logger.LogCritical(exception, "An exception occured while processing the request");
+            var exception = exceptionHandlerPathFeature!.Error;
+            logger.LogError(exception, "An exception occured while processing the request");
             context.Response.StatusCode = 500;
             await context.Response.WriteAsJsonAsync(new { error = "Internal Server Error" });
         }));

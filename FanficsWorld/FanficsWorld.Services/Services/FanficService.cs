@@ -4,38 +4,27 @@ using FanficsWorld.Common.Enums;
 using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
-using Ganss.XSS;
+using Ganss.Xss;
 using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.Services.Services;
 
-public class FanficService : IFanficService
+public class FanficService(
+    IFanficRepository repository,
+    IMapper mapper,
+    IUserRepository userRepository,
+    IHtmlSanitizer sanitizer,
+    IFandomRepository fandomRepository,
+    ITagRepository tagRepository,
+    IUnitOfWork unitOfWork) : IFanficService
 {
-    private readonly IFanficRepository _repository;
-    private readonly IMapper _mapper;
-    private readonly IUserRepository _userRepository;
-    private readonly IHtmlSanitizer _sanitizer;
-    private readonly IFandomRepository _fandomRepository;
-    private readonly ITagRepository _tagRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public FanficService(
-        IFanficRepository repository,
-        IMapper mapper,
-        IUserRepository userRepository,
-        IHtmlSanitizer sanitizer,
-        IFandomRepository fandomRepository,
-        ITagRepository tagRepository,
-        IUnitOfWork unitOfWork)
-    {
-        _repository = repository;
-        _mapper = mapper;
-        _userRepository = userRepository;
-        _sanitizer = sanitizer;
-        _fandomRepository = fandomRepository;
-        _tagRepository = tagRepository;
-        _unitOfWork = unitOfWork;
-    }
+    private readonly IFanficRepository _repository = repository;
+    private readonly IMapper _mapper = mapper;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IHtmlSanitizer _sanitizer = sanitizer;
+    private readonly IFandomRepository _fandomRepository = fandomRepository;
+    private readonly ITagRepository _tagRepository = tagRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<FanficDto?> GetByIdAsync(long id)
     {
@@ -48,7 +37,7 @@ public class FanficService : IFanficService
         var fanfic = new Fanfic
         {
             Title = _sanitizer.Sanitize(newFanficDto.Title),
-            Annotation = _sanitizer.Sanitize(newFanficDto.Annotation),
+            Annotation = newFanficDto.Annotation is not null ? _sanitizer.Sanitize(newFanficDto.Annotation) : null,
             Text = _sanitizer.Sanitize(newFanficDto.Text),
             Direction = newFanficDto.Direction,
             Origin = newFanficDto.Origin,

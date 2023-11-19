@@ -7,18 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.Services.Services;
 
-public class FandomService : IFandomService
+public class FandomService(
+    IFandomRepository repository,
+    IMapper mapper) : IFandomService
 {
-    private readonly IFandomRepository _repository;
-    private readonly IMapper _mapper;
-
-    public FandomService(
-        IFandomRepository repository,
-        IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
+    private readonly IFandomRepository _repository = repository;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<ICollection<SimpleFandomDto>> GetTop10FandomsAsync()
     {

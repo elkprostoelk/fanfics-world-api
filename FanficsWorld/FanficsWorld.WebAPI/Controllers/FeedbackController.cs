@@ -6,16 +6,11 @@ namespace FanficsWorld.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FeedbackController : ControllerBase
+    public class FeedbackController(
+        IFeedbackService service
+            ) : ControllerBase
     {
-        private readonly IFeedbackService _service;
-
-        public FeedbackController(
-            IFeedbackService service
-            )
-        {
-            _service = service;
-        }
+        private readonly IFeedbackService _service = service;
 
         [HttpPost]
         public async Task<IActionResult> SendFeedbackAsync(SendFeedbackDto request)

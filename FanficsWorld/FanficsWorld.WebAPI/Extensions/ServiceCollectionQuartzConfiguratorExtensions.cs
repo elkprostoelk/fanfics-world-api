@@ -14,7 +14,7 @@ public static class ServiceCollectionQuartzConfiguratorExtensions
         var configKey = $"Quartz:{jobName}";
         var cronSchedule = config[configKey];
         
-        if (String.IsNullOrEmpty(cronSchedule))
+        if (string.IsNullOrEmpty(cronSchedule))
         {
             throw new Exception($"No Quartz.NET Cron schedule found for job in configuration at {configKey}");
         }

@@ -6,7 +6,7 @@ namespace FanficsWorld.DataAccess.Interfaces;
 public interface IUserRepository
 {
     Task<IdentityResult> RegisterUserAsync(User user, string password, string role);
-    Task<User?> GetAsync(string login);
+    Task<User?> GetAsync(string idOrUserName);
     Task<ICollection<User>> GetRangeAsync(ICollection<string> coauthorIds);
     Task<ICollection<User>> GetChunkAsync(string? userName, int chunkNumber, int chunkSize);
     Task<long> CountAsync(string? currentUserId);

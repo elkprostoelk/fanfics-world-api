@@ -5,14 +5,9 @@ namespace FanficsWorld.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TagController : ControllerBase
+public class TagController(ITagService service) : ControllerBase
 {
-    private readonly ITagService _service;
-
-    public TagController(ITagService service)
-    {
-        _service = service;
-    }
+    private readonly ITagService _service = service;
 
     [HttpGet]
     public async Task<IActionResult> GetAllTagsAsync() =>

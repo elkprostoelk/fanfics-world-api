@@ -9,15 +9,10 @@ using Quartz;
 namespace FanficsWorld.Services.Jobs;
 
 [DisallowConcurrentExecution]
-public class FanficStatusUpdatingJob : IJob
+public class FanficStatusUpdatingJob(IServiceScopeFactory serviceScopeFactory) : IJob
 {
-    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
 
-    public FanficStatusUpdatingJob(IServiceScopeFactory serviceScopeFactory)
-    {
-        _serviceScopeFactory = serviceScopeFactory;
-    }
-    
     public async Task Execute(IJobExecutionContext context)
     {
         using var scope = _serviceScopeFactory.CreateScope();

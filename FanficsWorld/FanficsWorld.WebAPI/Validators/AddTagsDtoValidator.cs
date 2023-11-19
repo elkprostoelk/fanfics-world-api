@@ -10,8 +10,7 @@ public class AddTagsDtoValidator : AbstractValidator<AddTagsDto>
     {
         RuleFor(dto => dto.TagIds)
             .NotEmpty().WithMessage("You must provide any tag IDs to add!")
-            .MustAsync(async (ids, cancellationToken) =>
-                await tagService.ContainsAllAsync(ids, cancellationToken))
+            .MustAsync(tagService.ContainsAllAsync)
             .WithMessage("Some of provided IDs do not exist!");
     }
 }

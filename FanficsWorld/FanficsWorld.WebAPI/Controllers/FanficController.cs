@@ -10,19 +10,13 @@ namespace FanficsWorld.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class FanficController : ControllerBase
+public class FanficController(
+    IFanficService service,
+    IValidator<NewFanficDto> newFanficValidator) : ControllerBase
 {
-    private readonly IFanficService _service;
-    private readonly IValidator<NewFanficDto> _newFanficValidator;
+    private readonly IFanficService _service = service;
+    private readonly IValidator<NewFanficDto> _newFanficValidator = newFanficValidator;
     private static readonly Mutex FanficViewsCounterMutex = new();
-
-    public FanficController(
-        IFanficService service,
-        IValidator<NewFanficDto> newFanficValidator)
-    {
-        _service = service;
-        _newFanficValidator = newFanficValidator;
-    }
 
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetFanficAsync(long id)
@@ -58,7 +52,7 @@ public class FanficController : ControllerBase
             return BadRequest(ModelState);
         }
         
-        var createdFanficId = await _service.CreateAsync(newFanficDto, User.GetUserId());
+        var createdFanficId = await _service.CreateAsync(newFanficDto, User.GetUserId()!);
         
         return createdFanficId.HasValue
             ? StatusCode(201, createdFanficId)
