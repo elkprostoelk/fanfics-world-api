@@ -57,7 +57,7 @@ try
 
     await app.RunAsync();
 }
-catch (Exception e)
+catch (Exception e) when (e is not HostAbortedException)
 {
     Log.Fatal(e, "An exception occured while starting up");
 }

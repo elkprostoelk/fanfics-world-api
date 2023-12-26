@@ -1,6 +1,7 @@
 ﻿using FanficsWorld.Common.Configurations;
-using FanficsWorld.Common.Enums;
-using FanficsWorld.Services.Interfaces;
+using FanficsWorld.DataAccess;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -9,41 +10,33 @@ namespace FanficsWorld.Services.Services;
 public class FanficsStatusUpdatingService
 {
     private readonly ILogger<FanficsStatusUpdatingService> _logger;
-    private readonly IFanficService _fanficService;
-    private readonly FanficStatusUpdatingConfiguration _fanficStatusUpdatingConfig;
+    private readonly FanficsDbContext _dbContext;
+    private readonly FanficStatusUpdatingConfiguration _fanficStatusUpdatingOptions;
 
-    public FanficsStatusUpdatingService(ILogger<FanficsStatusUpdatingService> logger,
-        IOptions<FanficStatusUpdatingConfiguration> fanficStatusUpdatingConfig,
-        IFanficService fanficService)
+    public FanficsStatusUpdatingService(
+        ILogger<FanficsStatusUpdatingService> logger,
+        FanficsDbContext dbContext,
+        IOptions<FanficStatusUpdatingConfiguration> fanficStatusUpdatingOptions)
     {
         _logger = logger;
-        _fanficService = fanficService;
-        _fanficStatusUpdatingConfig = fanficStatusUpdatingConfig.Value;
+        _dbContext = dbContext;
+        _fanficStatusUpdatingOptions = fanficStatusUpdatingOptions.Value;
     }
 
     public async Task UpdateFanficsStatusesAsync()
     {
         try
         {
-            var fanficsCount = await _fanficService.CountInProgressAsync();
-            var chunksCount = Convert.ToInt32(
-                Math.Ceiling(fanficsCount / (double)_fanficStatusUpdatingConfig.ChunkSize));
-            for (var i = 0; i < chunksCount; i++)
-            {
-                var chunk = await _fanficService.GetMinifiedInProgressAsync(_fanficStatusUpdatingConfig.ChunkSize);
-                for (var j = 0; j < _fanficStatusUpdatingConfig.ChunkSize; j++)
-                {
-                    var difference = (DateTime.Now - chunk.ElementAt(j).LastModified).Days;
-                    if (difference >= _fanficStatusUpdatingConfig.FanficFrozenAfterDays)
-                    {
-                        await _fanficService.SetFanficStatusAsync(chunk.ElementAt(j).Id, FanficStatus.Frozen);
-                    }
-                }
-            }
+            var parameter = new SqlParameter("@FanficFrozenAfterDays",
+                _fanficStatusUpdatingOptions.FanficFrozenAfterDays);
+            
+            var affectedFanficsCount = await _dbContext.Database.ExecuteSqlRawAsync("sp_UpdateFanficStatus @FanficFrozenAfterDays", parameter);
+            _logger.LogInformation("{AffectedFanficsCount} fanfics frozen", affectedFanficsCount);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An error occured while executing the service");
+            throw;
         }
     }
 }

@@ -65,20 +65,20 @@ public class FanficService : IFanficService
         var coauthors = await _userRepository.GetRangeAsync(newFanficDto.CoauthorIds ?? new List<string>());
         var fandoms = await _fandomRepository.GetRangeAsync(newFanficDto.FandomIds ?? new List<long>());
         var tags = await _tagRepository.GetRangeAsync(newFanficDto.TagIds ?? new List<long>());
-        var coauthorsNotEmpty = coauthors.Any();
-        var fandomsNotEmpty = fandoms.Any();
-        var tagsNotEmpty = tags.Any();
+        var coauthorsNotEmpty = coauthors.Count != 0;
+        var fandomsNotEmpty = fandoms.Count != 0;
+        var tagsNotEmpty = tags.Count != 0;
         if (coauthorsNotEmpty)
         {
-            coauthors.ToList().ForEach(author => fanfic.Coauthors.Add(author));
+            coauthors.ToList().ForEach(fanfic.Coauthors.Add);
         }
         if (fandomsNotEmpty)
         {
-            fandoms.ToList().ForEach(fandom => fanfic.Fandoms.Add(fandom));
+            fandoms.ToList().ForEach(fanfic.Fandoms.Add);
         }
         if (tagsNotEmpty)
         {
-            tags.ToList().ForEach(tag => fanfic.Tags.Add(tag));
+            tags.ToList().ForEach(fanfic.Tags.Add);
         }
 
         if (coauthorsNotEmpty || fandomsNotEmpty || tagsNotEmpty)
@@ -140,15 +140,6 @@ public class FanficService : IFanficService
             PagesCount = pagesCount,
             ItemsPerPage = itemsPerPage
         };
-    }
-
-    public async Task<long> CountInProgressAsync() =>
-        await _repository.CountByStatusAsync(FanficStatus.InProgress);
-    
-    public async Task<ICollection<MinifiedFanficDto>> GetMinifiedInProgressAsync(int chunkSize)
-    {
-        var fanfics = await _repository.GetAllInProgress(chunkSize).ToListAsync();
-        return _mapper.Map<List<MinifiedFanficDto>>(fanfics);
     }
 
     public async Task SetFanficStatusAsync(long id, FanficStatus fanficStatus)
