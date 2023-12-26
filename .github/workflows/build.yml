@@ -21,8 +21,11 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
+      working-directory: FanficsWorld
       run: dotnet restore
     - name: Build
+      working-directory: FanficsWorld
       run: dotnet build --no-restore
     - name: Test
+      working-directory: FanficsWorld
       run: dotnet test --no-build --verbosity normal
