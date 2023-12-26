@@ -3,9 +3,14 @@ using FanficsWorld.DataAccess.Interfaces;
 
 namespace FanficsWorld.DataAccess.Repositories;
 
-public class FeedbackRepository(FanficsDbContext context) : IFeedbackRepository
+public class FeedbackRepository : IFeedbackRepository
 {
-    private readonly FanficsDbContext _context = context;
+    private readonly FanficsDbContext _context;
+
+    public FeedbackRepository(FanficsDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task<bool> SendAsync(Feedback feedback)
     {

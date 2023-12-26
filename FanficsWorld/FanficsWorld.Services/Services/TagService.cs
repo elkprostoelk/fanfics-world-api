@@ -6,11 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.Services.Services;
 
-public class TagService(ITagRepository repository,
-    IMapper mapper) : ITagService
+public class TagService : ITagService
 {
-    private readonly ITagRepository _repository = repository;
-    private readonly IMapper _mapper = mapper;
+    private readonly ITagRepository _repository;
+    private readonly IMapper _mapper;
+
+    public TagService(ITagRepository repository,
+        IMapper mapper)
+    {
+        _repository = repository;
+        _mapper = mapper;
+    }
 
     public async Task<ICollection<TagDto>?> GetAllAsync(string? title = null)
     {

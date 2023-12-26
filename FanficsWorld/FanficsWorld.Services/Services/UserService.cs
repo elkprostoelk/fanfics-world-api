@@ -12,16 +12,23 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace FanficsWorld.Services.Services;
 
-public class UserService(
-    IUserRepository repository,
-    IMapper mapper,
-    IConfiguration configuration,
-    UserManager<User> userManager) : IUserService
+public class UserService : IUserService
 {
-    private readonly IUserRepository _repository = repository;
-    private readonly IMapper _mapper = mapper;
-    private readonly IConfiguration _configuration = configuration;
-    private readonly UserManager<User> _userManager = userManager;
+    private readonly IUserRepository _repository;
+    private readonly IMapper _mapper;
+    private readonly IConfiguration _configuration;
+    private readonly UserManager<User> _userManager;
+
+    public UserService(IUserRepository repository,
+        IMapper mapper,
+        IConfiguration configuration,
+        UserManager<User> userManager)
+    {
+        _repository = repository;
+        _mapper = mapper;
+        _configuration = configuration;
+        _userManager = userManager;
+    }
 
     public async Task<IdentityResult> RegisterUserAsync(RegisterUserDto registerUserDto)
     {

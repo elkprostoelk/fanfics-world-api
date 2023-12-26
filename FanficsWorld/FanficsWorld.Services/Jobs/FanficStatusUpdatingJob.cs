@@ -9,9 +9,14 @@ using Quartz;
 namespace FanficsWorld.Services.Jobs;
 
 [DisallowConcurrentExecution]
-public class FanficStatusUpdatingJob(IServiceScopeFactory serviceScopeFactory) : IJob
+public class FanficStatusUpdatingJob : IJob
 {
-    private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+
+    public FanficStatusUpdatingJob(IServiceScopeFactory serviceScopeFactory)
+    {
+        _serviceScopeFactory = serviceScopeFactory;
+    }
 
     public async Task Execute(IJobExecutionContext context)
     {

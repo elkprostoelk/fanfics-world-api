@@ -7,9 +7,14 @@ namespace FanficsWorld.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IUserService service) : ControllerBase
+public class UserController : ControllerBase
 {
-    private readonly IUserService _service = service;
+    private readonly IUserService _service;
+
+    public UserController(IUserService service)
+    {
+        _service = service;
+    }
 
     [HttpGet("get-chunk/{number:int}/{size:int}")]
     [Authorize]

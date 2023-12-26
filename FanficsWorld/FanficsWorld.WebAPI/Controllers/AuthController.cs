@@ -9,16 +9,23 @@ namespace FanficsWorld.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(
-    IUserService userService,
-    IValidator<LoginUserDto> loginValidator,
-    IValidator<RegisterUserDto> registerValidator,
-    IValidator<ChangePasswordDto> changePasswordValidator) : ControllerBase
+public class AuthController : ControllerBase
 {
-    private readonly IUserService _userService = userService;
-    private readonly IValidator<LoginUserDto> _loginValidator = loginValidator;
-    private readonly IValidator<RegisterUserDto> _registerValidator = registerValidator;
-    private readonly IValidator<ChangePasswordDto> _changePasswordValidator = changePasswordValidator;
+    private readonly IUserService _userService;
+    private readonly IValidator<LoginUserDto> _loginValidator;
+    private readonly IValidator<RegisterUserDto> _registerValidator;
+    private readonly IValidator<ChangePasswordDto> _changePasswordValidator;
+
+    public AuthController(IUserService userService,
+        IValidator<LoginUserDto> loginValidator,
+        IValidator<RegisterUserDto> registerValidator,
+        IValidator<ChangePasswordDto> changePasswordValidator)
+    {
+        _userService = userService;
+        _loginValidator = loginValidator;
+        _registerValidator = registerValidator;
+        _changePasswordValidator = changePasswordValidator;
+    }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginUserDto loginUserDto)

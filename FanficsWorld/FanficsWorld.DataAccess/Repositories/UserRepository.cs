@@ -7,14 +7,20 @@ using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.DataAccess.Repositories;
 
-public class UserRepository(
-    UserManager<User> userManager,
-    ILogger<UserRepository> logger,
-    IMemoryCache cache) : IUserRepository
+public class UserRepository : IUserRepository
 {
-    private readonly UserManager<User> _userManager = userManager;
-    private readonly ILogger<UserRepository> _logger = logger;
-    private readonly IMemoryCache _cache = cache;
+    private readonly UserManager<User> _userManager;
+    private readonly ILogger<UserRepository> _logger;
+    private readonly IMemoryCache _cache;
+
+    public UserRepository(UserManager<User> userManager,
+        ILogger<UserRepository> logger,
+        IMemoryCache cache)
+    {
+        _userManager = userManager;
+        _logger = logger;
+        _cache = cache;
+    }
 
     public async Task<IdentityResult> RegisterUserAsync(User user, string password, string role)
     {

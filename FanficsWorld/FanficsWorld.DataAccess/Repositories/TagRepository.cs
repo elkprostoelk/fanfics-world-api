@@ -4,9 +4,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.DataAccess.Repositories;
 
-public class TagRepository(FanficsDbContext context) : ITagRepository
+public class TagRepository : ITagRepository
 {
-    private readonly FanficsDbContext _context = context;
+    private readonly FanficsDbContext _context;
+
+    public TagRepository(FanficsDbContext context)
+    {
+        _context = context;
+    }
 
     public IQueryable<Tag> GetAll() =>
         _context.Tags.AsNoTracking();

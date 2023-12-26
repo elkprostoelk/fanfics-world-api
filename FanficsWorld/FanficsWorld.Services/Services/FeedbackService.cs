@@ -7,13 +7,17 @@ using Ganss.Xss;
 
 namespace FanficsWorld.Services.Services;
 
-public class FeedbackService(
-    IFeedbackRepository repository,
-    IHtmlSanitizer sanitizer
-        ) : IFeedbackService
+public class FeedbackService : IFeedbackService
 {
-    private readonly IFeedbackRepository _repository = repository;
-    private readonly IHtmlSanitizer _sanitizer = sanitizer;
+    private readonly IFeedbackRepository _repository;
+    private readonly IHtmlSanitizer _sanitizer;
+
+    public FeedbackService(IFeedbackRepository repository,
+        IHtmlSanitizer sanitizer)
+    {
+        _repository = repository;
+        _sanitizer = sanitizer;
+    }
 
     public async Task<bool> SendFeedbackAsync(SendFeedbackDto request)
     {

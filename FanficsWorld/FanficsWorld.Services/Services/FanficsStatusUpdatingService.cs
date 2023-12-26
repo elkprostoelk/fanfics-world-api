@@ -6,15 +6,20 @@ using Microsoft.Extensions.Options;
 
 namespace FanficsWorld.Services.Services;
 
-public class FanficsStatusUpdatingService(
-    ILogger<FanficsStatusUpdatingService> logger,
-    IOptions<FanficStatusUpdatingConfiguration> fanficStatusUpdatingConfig,
-    IFanficService fanficService
-        )
+public class FanficsStatusUpdatingService
 {
-    private readonly ILogger<FanficsStatusUpdatingService> _logger = logger;
-    private readonly IFanficService _fanficService = fanficService;
-    private readonly FanficStatusUpdatingConfiguration _fanficStatusUpdatingConfig = fanficStatusUpdatingConfig.Value;
+    private readonly ILogger<FanficsStatusUpdatingService> _logger;
+    private readonly IFanficService _fanficService;
+    private readonly FanficStatusUpdatingConfiguration _fanficStatusUpdatingConfig;
+
+    public FanficsStatusUpdatingService(ILogger<FanficsStatusUpdatingService> logger,
+        IOptions<FanficStatusUpdatingConfiguration> fanficStatusUpdatingConfig,
+        IFanficService fanficService)
+    {
+        _logger = logger;
+        _fanficService = fanficService;
+        _fanficStatusUpdatingConfig = fanficStatusUpdatingConfig.Value;
+    }
 
     public async Task UpdateFanficsStatusesAsync()
     {

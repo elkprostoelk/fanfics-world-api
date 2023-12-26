@@ -5,9 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.DataAccess.Repositories;
 
-public class FanficRepository(FanficsDbContext context) : IFanficRepository
+public class FanficRepository : IFanficRepository
 {
-    private readonly FanficsDbContext _context = context;
+    private readonly FanficsDbContext _context;
+
+    public FanficRepository(FanficsDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task<Fanfic?> GetAsync(long id) =>
         await _context.Fanfics

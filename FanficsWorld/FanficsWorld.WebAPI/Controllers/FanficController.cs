@@ -10,13 +10,18 @@ namespace FanficsWorld.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class FanficController(
-    IFanficService service,
-    IValidator<NewFanficDto> newFanficValidator) : ControllerBase
+public class FanficController : ControllerBase
 {
-    private readonly IFanficService _service = service;
-    private readonly IValidator<NewFanficDto> _newFanficValidator = newFanficValidator;
+    private readonly IFanficService _service;
+    private readonly IValidator<NewFanficDto> _newFanficValidator;
     private static readonly Mutex FanficViewsCounterMutex = new();
+
+    public FanficController(IFanficService service,
+        IValidator<NewFanficDto> newFanficValidator)
+    {
+        _service = service;
+        _newFanficValidator = newFanficValidator;
+    }
 
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetFanficAsync(long id)

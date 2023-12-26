@@ -4,9 +4,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.DataAccess.Repositories;
 
-public class FandomRepository(FanficsDbContext context) : IFandomRepository
+public class FandomRepository : IFandomRepository
 {
-    private readonly FanficsDbContext _context = context;
+    private readonly FanficsDbContext _context;
+
+    public FandomRepository(FanficsDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task<ICollection<Fandom>> GetTop10Async() =>
         await _context.Fandoms

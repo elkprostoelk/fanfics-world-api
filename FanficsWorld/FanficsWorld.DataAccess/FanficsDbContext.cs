@@ -5,8 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.DataAccess;
 
-public class FanficsDbContext(DbContextOptions<FanficsDbContext> options) : IdentityDbContext<User>(options)
+public class FanficsDbContext : IdentityDbContext<User>
 {
+    public FanficsDbContext(DbContextOptions<FanficsDbContext> options) : base(options)
+    {
+    }
+
     public DbSet<Fanfic> Fanfics { get; set; }
     
     public DbSet<Fandom> Fandoms { get; set; }

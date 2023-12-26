@@ -9,22 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FanficsWorld.Services.Services;
 
-public class FanficService(
-    IFanficRepository repository,
-    IMapper mapper,
-    IUserRepository userRepository,
-    IHtmlSanitizer sanitizer,
-    IFandomRepository fandomRepository,
-    ITagRepository tagRepository,
-    IUnitOfWork unitOfWork) : IFanficService
+public class FanficService : IFanficService
 {
-    private readonly IFanficRepository _repository = repository;
-    private readonly IMapper _mapper = mapper;
-    private readonly IUserRepository _userRepository = userRepository;
-    private readonly IHtmlSanitizer _sanitizer = sanitizer;
-    private readonly IFandomRepository _fandomRepository = fandomRepository;
-    private readonly ITagRepository _tagRepository = tagRepository;
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IFanficRepository _repository;
+    private readonly IMapper _mapper;
+    private readonly IUserRepository _userRepository;
+    private readonly IHtmlSanitizer _sanitizer;
+    private readonly IFandomRepository _fandomRepository;
+    private readonly ITagRepository _tagRepository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public FanficService(IFanficRepository repository,
+        IMapper mapper,
+        IUserRepository userRepository,
+        IHtmlSanitizer sanitizer,
+        IFandomRepository fandomRepository,
+        ITagRepository tagRepository,
+        IUnitOfWork unitOfWork)
+    {
+        _repository = repository;
+        _mapper = mapper;
+        _userRepository = userRepository;
+        _sanitizer = sanitizer;
+        _fandomRepository = fandomRepository;
+        _tagRepository = tagRepository;
+        _unitOfWork = unitOfWork;
+    }
 
     public async Task<FanficDto?> GetByIdAsync(long id)
     {
