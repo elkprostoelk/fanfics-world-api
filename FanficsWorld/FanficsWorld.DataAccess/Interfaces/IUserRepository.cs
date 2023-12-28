@@ -10,4 +10,8 @@ public interface IUserRepository
     Task<ICollection<User>> GetRangeAsync(ICollection<string> coauthorIds);
     Task<ICollection<User>> GetChunkAsync(string? userName, int chunkNumber, int chunkSize);
     Task<long> CountAsync(string? currentUserId);
+    Task<bool> CheckPasswordAsync(User user, string password);
+    Task<bool> UserExistsAsync(string idOrUserName);
+    Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword);
+    Task<ICollection<string>> GetRolesAsync(User user);
 }

@@ -13,7 +13,8 @@ public class UserRepository : IUserRepository
     private readonly ILogger<UserRepository> _logger;
     private readonly IMemoryCache _cache;
 
-    public UserRepository(UserManager<User> userManager,
+    public UserRepository(
+        UserManager<User> userManager,
         ILogger<UserRepository> logger,
         IMemoryCache cache)
     {
@@ -50,7 +51,10 @@ public class UserRepository : IUserRepository
     }
 
     public async Task<ICollection<User>> GetRangeAsync(ICollection<string> coauthorIds) =>
-        await _userManager.Users.Where(u => coauthorIds.Contains(u.Id)).ToListAsync();
+        await _userManager.Users
+            .AsNoTracking()
+            .Where(u => coauthorIds.Contains(u.Id))
+            .ToListAsync();
 
     public async Task<ICollection<User>> GetChunkAsync(string? userName, int chunkNumber, int chunkSize)
     {
@@ -62,28 +66,54 @@ public class UserRepository : IUserRepository
         }
         
         var isListCached = _cache.TryGetValue(cacheKey, out List<User>? users);
-        if (!isListCached)
+        if (isListCached)
         {
-            IQueryable<User> usersQuery = _userManager.Users.AsNoTracking()
-                .OrderBy(u => u.UserName)
-                .Skip(chunkNumber * chunkSize)
-                .Take(chunkSize);
-            
-            if (isSearchByName)
-            {
-                usersQuery = usersQuery.Where(u =>
-                    u.UserName!.Contains(userName!));
-            }
-            users = await usersQuery
-                .ToListAsync();
-            
-            _cache.Set(cacheKey, users, TimeSpan.FromHours(1));
+            return users ?? [];
         }
+        var usersQuery = _userManager.Users
+            .AsNoTracking()
+            .OrderBy(u => u.UserName)
+            .Skip(chunkNumber * chunkSize)
+            .Take(chunkSize);
         
-        return users ?? [];
+        if (isSearchByName)
+        {
+            usersQuery = usersQuery.Where(u =>
+                u.UserName!.Contains(userName!));
+        }
+        users = await usersQuery
+            .ToListAsync();
+            
+        _cache.Set(cacheKey, users, TimeSpan.FromHours(1));
+        return users;
     }
 
-    public async Task<long> CountAsync(string? currentUserId = null) =>
-        await _userManager.Users
-            .LongCountAsync(u => u.Id != currentUserId);
+    public async Task<long> CountAsync(string? currentUserId = null)
+    {
+        var usersQuery = _userManager.Users;
+        if (!string.IsNullOrWhiteSpace(currentUserId))
+        {
+            usersQuery = usersQuery.Where(u => u.Id != currentUserId);
+        }
+        
+        return await usersQuery
+            .LongCountAsync();
+    }
+
+    public async Task<bool> CheckPasswordAsync(User user, string password) =>
+        await _userManager.CheckPasswordAsync(user, password);
+
+    public async Task<bool> UserExistsAsync(string idOrUserName) =>
+        await _userManager.Users.AnyAsync(u => u.Id == idOrUserName
+                                               || (!string.IsNullOrEmpty(u.UserName)
+                                                   && u.UserName.Contains(idOrUserName)));
+
+    public async Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword) =>
+        await _userManager.ChangePasswordAsync(
+            user,
+            currentPassword,
+            newPassword);
+
+    public async Task<ICollection<string>> GetRolesAsync(User user) =>
+        await _userManager.GetRolesAsync(user);
 }

@@ -17,17 +17,15 @@ public class UserService : IUserService
     private readonly IUserRepository _repository;
     private readonly IMapper _mapper;
     private readonly IConfiguration _configuration;
-    private readonly UserManager<User> _userManager;
 
-    public UserService(IUserRepository repository,
+    public UserService(
+        IUserRepository repository,
         IMapper mapper,
-        IConfiguration configuration,
-        UserManager<User> userManager)
+        IConfiguration configuration)
     {
         _repository = repository;
         _mapper = mapper;
         _configuration = configuration;
-        _userManager = userManager;
     }
 
     public async Task<IdentityResult> RegisterUserAsync(RegisterUserDto registerUserDto)
@@ -46,15 +44,15 @@ public class UserService : IUserService
         {
             return null;
         }
-        var passwordValid = await _userManager.CheckPasswordAsync(user, loginUserDto.Password);
+        
+        var passwordValid = await _repository.CheckPasswordAsync(user, loginUserDto.Password);
         return passwordValid
             ? new UserTokenDto {Jwt = await GenerateTokenAsync(user)}
             : null;
     }
 
-    public async Task<bool> UserExistsAsync(string idOrUserName) => 
-        await _userManager.FindByIdAsync(idOrUserName) is not null
-        || await _userManager.FindByNameAsync(idOrUserName) is not null;
+    public async Task<bool> UserExistsAsync(string idOrUserName) =>
+        await _repository.UserExistsAsync(idOrUserName);
 
     public async Task<bool> ChangePasswordAsync(string id, ChangePasswordDto changePasswordDto)
     {
@@ -64,7 +62,7 @@ public class UserService : IUserService
             return false;
         }
 
-        var result = await _userManager.ChangePasswordAsync(
+        var result = await _repository.ChangePasswordAsync(
             user,
             changePasswordDto.CurrentPassword,
             changePasswordDto.NewPassword);
@@ -72,14 +70,15 @@ public class UserService : IUserService
     }
 
     public async Task<ServicePagedResultDto<SimpleUserDto>> GetSimpleUsersChunkAsync(int chunkNumber, int chunkSize,
-        string userId, string? userName)
+        string userId, string? userName = null)
     {
         var users = await _repository.GetChunkAsync(userName, chunkNumber, chunkSize);
-        var dtos = _mapper.Map<ICollection<SimpleUserDto>>(users.Where(u => u.Id != userId));
+        users = (!string.IsNullOrWhiteSpace(userId) ? users.Where(u => u.Id != userId) : users).ToList();
+        var userDtos = _mapper.Map<ICollection<SimpleUserDto>>(users);
         var usersCount = await _repository.CountAsync(userId);
         return new ServicePagedResultDto<SimpleUserDto>
         {
-            PageContent = dtos,
+            PageContent = userDtos,
             CurrentPage = chunkNumber + 1,
             ItemsPerPage = chunkSize,
             TotalItems = usersCount,
@@ -99,7 +98,7 @@ public class UserService : IUserService
             new (ClaimTypes.NameIdentifier, user.Id),
             new (ClaimTypes.Name, user.UserName!)
         };
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = await _repository.GetRolesAsync(user);
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
         
         var jwtSettings = _configuration.GetSection("JwtConfig");
