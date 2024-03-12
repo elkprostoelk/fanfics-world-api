@@ -12,9 +12,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="AutoMapper" Version="12.0.1" />
-      <PackageReference Include="HtmlSanitizer" Version="8.0.746" />
-      <PackageReference Include="Quartz" Version="3.8.0" />
+      <PackageReference Include="AutoMapper" Version="13.0.1" />
+      <PackageReference Include="HtmlSanitizer" Version="8.0.843" />
+      <PackageReference Include="Quartz" Version="3.8.1" />
     </ItemGroup>
 
 </Project>
