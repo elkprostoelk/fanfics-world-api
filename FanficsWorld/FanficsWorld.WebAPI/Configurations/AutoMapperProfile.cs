@@ -19,7 +19,8 @@ public class AutoMapperProfile : Profile
             .ForMember(dto => dto.Author,
                 opts => opts.MapFrom(f => f.Author))
             .ForMember(dto => dto.Fandoms,
-                opts => opts.MapFrom(f => f.Fandoms));
+                opts => opts.MapFrom(f => f.Fandoms))
+            .ForMember(dto => dto.Tags, opts => opts.MapFrom(f => f.Tags));
 
         CreateMap<Fanfic, SimpleFanficDto>()
             .ForMember(dto => dto.Coauthors,

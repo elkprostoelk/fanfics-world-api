@@ -29,4 +29,6 @@ public class FanficDto
     public ICollection<SimpleUserDto> Coauthors { get; set; }
     
     public ICollection<SimpleFandomDto> Fandoms { get; set; }
+
+    public ICollection<TagDto> Tags { get; set; }
 }
