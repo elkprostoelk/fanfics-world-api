@@ -18,7 +18,7 @@ public class TagService : ITagService
         _mapper = mapper;
     }
 
-    public async Task<ICollection<TagDto>?> GetAllAsync(string? title = null)
+    public async Task<List<TagDto>?> GetAllAsync(string? title = null)
     {
         var tagsReq = _repository.GetAll();
         if (!string.IsNullOrWhiteSpace(title))
@@ -29,13 +29,13 @@ public class TagService : ITagService
         return await tagsReq.Select(tag => _mapper.Map<TagDto>(tag)).ToListAsync();
     }
 
-    public async Task<ICollection<TagDto>?> GetTop10Async()
+    public async Task<List<TagDto>?> GetTop10Async()
     {
         var tags = await _repository.GetTop10Async();
-        return _mapper.Map<ICollection<TagDto>>(tags);
+        return _mapper.Map<List<TagDto>>(tags);
     }
 
-    public async Task<bool> ContainsAllAsync(ICollection<long> ids,
+    public async Task<bool> ContainsAllAsync(List<long> ids,
         CancellationToken cancellationToken) =>
         await _repository.ContainsAllAsync(ids, cancellationToken);
 

@@ -30,15 +30,15 @@ public class Fanfic
     
     public User? Author { get; set; }
 
-    public ICollection<User> Coauthors { get; set; } = new HashSet<User>();
+    public List<User> Coauthors { get; set; }
 
-    public ICollection<FanficCoauthor> FanficCoauthors { get; set; } = new HashSet<FanficCoauthor>();
+    public List<FanficCoauthor> FanficCoauthors { get; set; }
 
-    public ICollection<Fandom> Fandoms { get; set; } = new HashSet<Fandom>();
+    public List<Fandom> Fandoms { get; set; }
     
-    public ICollection<FanficFandom> FanficFandoms { get; set; } = new HashSet<FanficFandom>();
+    public List<FanficFandom> FanficFandoms { get; set; }
 
-    public ICollection<Tag> Tags { get; set; } = new HashSet<Tag>();
+    public List<Tag> Tags { get; set; }
 
-    public ICollection<FanficTag> FanficTags { get; set; } = new HashSet<FanficTag>();
+    public List<FanficTag> FanficTags { get; set; }
 }

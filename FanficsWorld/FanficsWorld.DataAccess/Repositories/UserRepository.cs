@@ -50,19 +50,18 @@ public class UserRepository : IUserRepository
         return await _userManager.FindByNameAsync(idOrUserName);
     }
 
-    public async Task<ICollection<User>> GetRangeAsync(ICollection<string> coauthorIds) =>
+    public async Task<List<User>> GetRangeAsync(List<string> userIds) =>
         await _userManager.Users
-            .AsNoTracking()
-            .Where(u => coauthorIds.Contains(u.Id))
+            .Where(u => userIds.Contains(u.Id))
             .ToListAsync();
 
-    public async Task<ICollection<User>> GetChunkAsync(string? userName, int chunkNumber, int chunkSize)
+    public async Task<List<User>> GetListAsync(string? userName)
     {
-        var cacheKey = $"users_chunk_no_{chunkNumber}_size_{chunkSize}";
+        var cacheKey = "simple_users";
         var isSearchByName = !string.IsNullOrWhiteSpace(userName);
         if (isSearchByName)
         {
-            cacheKey = string.Concat(cacheKey, $"_username_{userName}");
+            cacheKey = string.Concat(cacheKey, $"_userSearch_{userName}");
         }
         
         var isListCached = _cache.TryGetValue(cacheKey, out List<User>? users);
@@ -70,11 +69,8 @@ public class UserRepository : IUserRepository
         {
             return users ?? [];
         }
-        var usersQuery = _userManager.Users
-            .AsNoTracking()
-            .OrderBy(u => u.UserName)
-            .Skip(chunkNumber * chunkSize)
-            .Take(chunkSize);
+
+        var usersQuery = _userManager.Users.AsNoTracking();
         
         if (isSearchByName)
         {
@@ -82,6 +78,7 @@ public class UserRepository : IUserRepository
                 u.UserName!.Contains(userName!));
         }
         users = await usersQuery
+            .OrderBy(u => u.UserName)
             .ToListAsync();
             
         _cache.Set(cacheKey, users, TimeSpan.FromHours(1));
@@ -114,6 +111,9 @@ public class UserRepository : IUserRepository
             currentPassword,
             newPassword);
 
-    public async Task<ICollection<string>> GetRolesAsync(User user) =>
-        await _userManager.GetRolesAsync(user);
+    public async Task<List<string>> GetRolesAsync(User user)
+    {
+        var users = await _userManager.GetRolesAsync(user);
+        return users.ToList();
+    }
 }

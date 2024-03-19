@@ -29,22 +29,18 @@ public class UserServiceTests
     {
         // Arrange
         
-        _userRepositoryMock.Setup(r => r.GetChunkAsync(It.IsAny<string>(), 0, 5))
+        _userRepositoryMock.Setup(r => r.GetListAsync(It.IsAny<string>()))
             .ReturnsAsync(users);
         _userRepositoryMock.Setup(r => r.CountAsync(It.IsAny<string>()))
             .ReturnsAsync(itemsCount);
         
         // Act
 
-        var result = await _userService.GetSimpleUsersChunkAsync(0, 5, userId);
+        var result = await _userService.GetSimpleUsersAsync(userId);
 
         // Assert
         
-        Assert.NotEmpty(result.PageContent);
-        Assert.Equal(users.Count, result.PageContent.Count);
-        Assert.Equal(users.Count, result.TotalItems);
-        Assert.Equal(1, result.CurrentPage);
-        Assert.Equal(1, result.PagesCount);
-        Assert.Equal(5, result.ItemsPerPage);
+        Assert.NotEmpty(result);
+        Assert.Equal(users.Count, result.Count);
     }
 }

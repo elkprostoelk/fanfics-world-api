@@ -8,9 +8,9 @@ public class User : IdentityUser
     
     public DateTime RegistrationDate { get; set; }
 
-    public ICollection<Fanfic> Fanfics { get; set; } = new HashSet<Fanfic>();
+    public List<Fanfic> Fanfics { get; set; }
 
-    public ICollection<Fanfic> CoauthoredFanfics { get; set; } = new HashSet<Fanfic>();
+    public List<Fanfic> CoauthoredFanfics { get; set; }
 
-    public ICollection<FanficCoauthor> FanficCoauthors { get; set; } = new HashSet<FanficCoauthor>();
+    public List<FanficCoauthor> FanficCoauthors { get; set; }
 }

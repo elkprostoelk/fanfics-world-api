@@ -53,39 +53,15 @@ public class FanficService : IFanficService
             Origin = newFanficDto.Origin,
             Rating = newFanficDto.Rating,
             Status = FanficStatus.InProgress,
-            AuthorId = userId
+            AuthorId = userId,
+            Coauthors = await _userRepository.GetRangeAsync(newFanficDto.CoauthorIds ?? []),
+            Fandoms = await _fandomRepository.GetRangeAsync(newFanficDto.FandomIds ?? []),
+            Tags = await _tagRepository.GetRangeAsync(newFanficDto.TagIds ?? [])
         };
-        var fanficId = await _repository.AddAsync(fanfic);
-
-        if (!fanficId.HasValue)
-        {
-            return fanficId;
-        }
         
-        var coauthors = await _userRepository.GetRangeAsync(newFanficDto.CoauthorIds ?? new List<string>());
-        var fandoms = await _fandomRepository.GetRangeAsync(newFanficDto.FandomIds ?? new List<long>());
-        var tags = await _tagRepository.GetRangeAsync(newFanficDto.TagIds ?? new List<long>());
-        var coauthorsNotEmpty = coauthors.Count != 0;
-        var fandomsNotEmpty = fandoms.Count != 0;
-        var tagsNotEmpty = tags.Count != 0;
-        if (coauthorsNotEmpty)
-        {
-            coauthors.ToList().ForEach(fanfic.Coauthors.Add);
-        }
-        if (fandomsNotEmpty)
-        {
-            fandoms.ToList().ForEach(fanfic.Fandoms.Add);
-        }
-        if (tagsNotEmpty)
-        {
-            tags.ToList().ForEach(fanfic.Tags.Add);
-        }
-
-        if (coauthorsNotEmpty || fandomsNotEmpty || tagsNotEmpty)
-        {
-            await _unitOfWork.SaveChangesAsync();
-        }
-
+        
+        
+        var fanficId = await _repository.AddAsync(fanfic);
         return fanficId;
     }
 
@@ -129,7 +105,7 @@ public class FanficService : IFanficService
     {
         var fanfics = await _repository.GetAllPaged(page, itemsPerPage)
             .ToListAsync();
-        var fanficDtos = _mapper.Map<ICollection<SimpleFanficDto>>(fanfics);
+        var fanficDtos = _mapper.Map<List<SimpleFanficDto>>(fanfics);
         var totalItems = await _repository.CountAsync();
         var pagesCount = Convert.ToInt32(Math.Ceiling(totalItems / (double)itemsPerPage));
         return new ServicePagedResultDto<SimpleFanficDto>

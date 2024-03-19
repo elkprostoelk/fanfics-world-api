@@ -12,6 +12,6 @@ public interface IFanficRepository
     IQueryable<Fanfic> GetAllPaged(int pageNumber, int takeCount);
     IQueryable<Fanfic> GetAllInProgress(int takeCount);
     Task<long> CountAsync();
-    Task UpdateRangeAsync(ICollection<Fanfic> changedFanfics);
+    Task UpdateRangeAsync(List<Fanfic> changedFanfics);
     Task<long> CountByStatusAsync(FanficStatus fanficStatus);
 }

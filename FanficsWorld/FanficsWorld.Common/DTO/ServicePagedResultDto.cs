@@ -2,7 +2,7 @@
 
 public class ServicePagedResultDto<T> where T: new()
 {
-    public ICollection<T> PageContent { get; set; }
+    public List<T> PageContent { get; set; }
     
     public long TotalItems { get; set; }
     

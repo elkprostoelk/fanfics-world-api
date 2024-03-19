@@ -16,9 +16,9 @@ public class NewFanficDto
     
     public FanficDirection Direction { get; set; }
     
-    public ICollection<string>? CoauthorIds { get; set; }
+    public List<string>? CoauthorIds { get; set; }
     
-    public ICollection<long>? FandomIds { get; set; }
+    public List<long>? FandomIds { get; set; }
     
-    public ICollection<long>? TagIds { get; set; }
+    public List<long>? TagIds { get; set; }
 }

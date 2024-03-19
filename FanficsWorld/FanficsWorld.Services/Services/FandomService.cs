@@ -19,10 +19,10 @@ public class FandomService : IFandomService
         _mapper = mapper;
     }
 
-    public async Task<ICollection<SimpleFandomDto>> GetTop10FandomsAsync()
+    public async Task<List<SimpleFandomDto>> GetTop10FandomsAsync()
     {
         var fandoms = await _repository.GetTop10Async();
-        return _mapper.Map<ICollection<SimpleFandomDto>>(fandoms);
+        return _mapper.Map<List<SimpleFandomDto>>(fandoms);
     }
 
     public async Task<List<SimpleFandomDto>> SearchByTitleAsync(string title) =>

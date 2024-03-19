@@ -69,21 +69,11 @@ public class UserService : IUserService
         return result.Succeeded;
     }
 
-    public async Task<ServicePagedResultDto<SimpleUserDto>> GetSimpleUsersChunkAsync(int chunkNumber, int chunkSize,
-        string userId, string? userName = null)
+    public async Task<List<SimpleUserDto>> GetSimpleUsersAsync(string userId, string? userName = null)
     {
-        var users = await _repository.GetChunkAsync(userName, chunkNumber, chunkSize);
+        var users = await _repository.GetListAsync(userName);
         users = (!string.IsNullOrWhiteSpace(userId) ? users.Where(u => u.Id != userId) : users).ToList();
-        var userDtos = _mapper.Map<ICollection<SimpleUserDto>>(users);
-        var usersCount = await _repository.CountAsync(userId);
-        return new ServicePagedResultDto<SimpleUserDto>
-        {
-            PageContent = userDtos,
-            CurrentPage = chunkNumber + 1,
-            ItemsPerPage = chunkSize,
-            TotalItems = usersCount,
-            PagesCount = Convert.ToInt32(Math.Ceiling(usersCount / (double)chunkSize))
-        };
+        return _mapper.Map<List<SimpleUserDto>>(users);
     }
 
     private async Task<string> GenerateTokenAsync(User user)

@@ -6,7 +6,7 @@ public class Fandom
     
     public string Title { get; set; }
 
-    public ICollection<Fanfic> Fanfics { get; set; } = new HashSet<Fanfic>();
+    public List<Fanfic> Fanfics { get; set; }
 
-    public ICollection<FanficFandom> FanficFandoms { get; set; } = new HashSet<FanficFandom>();
+    public List<FanficFandom> FanficFandoms { get; set; }
 }

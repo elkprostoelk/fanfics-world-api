@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FanficsWorld.WebAPI.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
@@ -16,8 +17,7 @@ public class UserController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("get-chunk/{number:int}/{size:int}")]
-    [Authorize]
-    public async Task<IActionResult> GetUsersAsync(int number=0, int size=10) =>
-        Ok(await _service.GetSimpleUsersChunkAsync(number, size, User.GetUserId()!));
+    [HttpGet]
+    public async Task<IActionResult> GetUsersAsync(string? userName = null) =>
+        Ok(await _service.GetSimpleUsersAsync(User.GetUserId()!, userName));
 }

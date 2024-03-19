@@ -57,7 +57,7 @@ public class FanficRepository : IFanficRepository
             .Take(takeCount)
             .Where(ffic => ffic.Status == FanficStatus.InProgress);
 
-    public async Task UpdateRangeAsync(ICollection<Fanfic> changedFanfics)
+    public async Task UpdateRangeAsync(List<Fanfic> changedFanfics)
     {
         for (var i = 0; i < changedFanfics.Count; i++)
         {

@@ -16,18 +16,19 @@ public class TagRepository : ITagRepository
     public IQueryable<Tag> GetAll() =>
         _context.Tags.AsNoTracking();
 
-    public async Task<ICollection<Tag>> GetTop10Async() =>
+    public async Task<List<Tag>> GetTop10Async() =>
         await _context.Tags
             .Include(t => t.Fanfics)
             .AsNoTracking()
             .OrderByDescending(t => t.Fanfics.Count)
             .Take(10).ToListAsync();
 
-    public async Task<ICollection<Tag>> GetRangeAsync(ICollection<long> tagIds) =>
-        await _context.Tags.AsNoTracking()
-            .Where(t => tagIds.Contains(t.Id)).ToListAsync();
+    public async Task<List<Tag>> GetRangeAsync(List<long> tagIds) =>
+        await _context.Tags
+            .Where(t => tagIds.Contains(t.Id))
+            .ToListAsync();
 
-    public async Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken cancellationToken)
+    public async Task<bool> ContainsAllAsync(List<long> ids, CancellationToken cancellationToken)
     {
         var containsAll = true;
         foreach (var id in ids)

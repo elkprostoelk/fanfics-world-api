@@ -13,7 +13,7 @@ public class FandomRepository : IFandomRepository
         _context = context;
     }
 
-    public async Task<ICollection<Fandom>> GetTop10Async() =>
+    public async Task<List<Fandom>> GetTop10Async() =>
         await _context.Fandoms
             .Include(fdom => fdom.Fanfics)
             .OrderByDescending(fdom => fdom.Fanfics.Count)
@@ -28,10 +28,10 @@ public class FandomRepository : IFandomRepository
             .Where(fdom => fdom.Title.Contains(title))
             .Take(10);
 
-    public async Task<ICollection<Fandom>> GetRangeAsync(ICollection<long> fandomIds) =>
+    public async Task<List<Fandom>> GetRangeAsync(List<long> fandomIds) =>
         await _context.Fandoms
-            .AsNoTracking()
-            .Where(fdom => fandomIds.Contains(fdom.Id)).ToListAsync();
+            .Where(fdom => fandomIds.Contains(fdom.Id))
+            .ToListAsync();
 
     public async Task<long?> CreateAsync(Fandom fandom)
     {
@@ -45,7 +45,7 @@ public class FandomRepository : IFandomRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(fdom => fdom.Id == id);
 
-    public async Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken token)
+    public async Task<bool> ContainsAllAsync(List<long> ids, CancellationToken token)
     {
         var containsAll = true;
         foreach (var id in ids)

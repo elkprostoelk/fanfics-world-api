@@ -2,5 +2,5 @@
 
 public class AddTagsDto
 {
-    public ICollection<long> TagIds { get; set; }
+    public List<long> TagIds { get; set; }
 }

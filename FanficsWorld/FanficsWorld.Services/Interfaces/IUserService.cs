@@ -9,6 +9,6 @@ public interface IUserService
     Task<UserTokenDto?> ValidateUserAsync(LoginUserDto loginUserDto);
     Task<bool> UserExistsAsync(string idOrUserName);
     Task<bool> ChangePasswordAsync(string id, ChangePasswordDto changePasswordDto);
-    Task<ServicePagedResultDto<SimpleUserDto>> GetSimpleUsersChunkAsync(int chunkNumber, int chunkSize, string userId,
+    Task<List<SimpleUserDto>> GetSimpleUsersAsync(string userId,
         string? userName = null);
 }

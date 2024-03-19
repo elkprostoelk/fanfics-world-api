@@ -6,8 +6,8 @@
 
         public string Name { get; set; }
 
-        public ICollection<Fanfic> Fanfics { get; set; } = new HashSet<Fanfic>();
+        public List<Fanfic> Fanfics { get; set; }
 
-        public ICollection<FanficTag> FanficTags { get; set; } = new HashSet<FanficTag>();
+        public List<FanficTag> FanficTags { get; set; }
     }
 }

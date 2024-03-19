@@ -4,8 +4,8 @@ namespace FanficsWorld.Services.Interfaces;
 
 public interface ITagService
 {
-    Task<ICollection<TagDto>?> GetAllAsync(string? title = null);
-    Task<ICollection<TagDto>?> GetTop10Async();
-    Task<bool> ContainsAllAsync(ICollection<long> ids, CancellationToken cancellationToken);
+    Task<List<TagDto>?> GetAllAsync(string? title = null);
+    Task<List<TagDto>?> GetTop10Async();
+    Task<bool> ContainsAllAsync(List<long> ids, CancellationToken cancellationToken);
     Task<TagWithFanficsDto?> GetFullByIdAsync(long id);
 }
