@@ -25,7 +25,6 @@ public class FandomController : ControllerBase
     public async Task<IActionResult> GetTop10FandomsAsync() => 
         Ok(await _service.GetTop10FandomsAsync());
 
-    [Authorize]
     [HttpGet("search")]
     public async Task<IActionResult> GetFandomsByTitleAsync([FromQuery]string title) =>
         Ok(await _service.SearchByTitleAsync(title));
