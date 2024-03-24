@@ -20,13 +20,6 @@ public class RegisterUserDtoValidator : AbstractValidator<RegisterUserDto>
             .MinimumLength(8).WithMessage("Password must be 8 symbols or more!")
             .Matches(@"^\S+$").WithMessage("Password must not contain any spaces!");
 
-        When(dto => !string.IsNullOrWhiteSpace(dto.PhoneNumber), () =>
-        {
-            RuleFor(dto => dto.PhoneNumber)
-                .Matches(@"^[\d\-\(\)+]+$").WithMessage("Phone number is invalid!")
-                .MaximumLength(20).WithMessage("Phone number must not be more than 20 symbols!");
-        });
-
         RuleFor(dto => dto.UserName)
             .NotEmpty().WithMessage("User name must be provided!")
             .MaximumLength(20).WithMessage("User name must be less than 20 symbols!");
