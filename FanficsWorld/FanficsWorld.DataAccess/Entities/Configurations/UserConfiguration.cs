@@ -10,7 +10,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Ignore(u => u.PhoneNumberConfirmed)
             .Ignore(u => u.TwoFactorEnabled);
 
-        builder.Property(u => u.Age)
+        builder.Property(u => u.DateOfBirth)
             .IsRequired();
 
         builder.Property(u => u.RegistrationDate)
