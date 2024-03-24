@@ -26,7 +26,7 @@ public class FanficController : ControllerBase
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetFanficAsync(long id)
     {
-        var fanfic = await _service.GetByIdAsync(id);
+        var fanfic = await _service.GetDisplayFanficByIdAsync(id);
         if (fanfic is null)
         {
             return NotFound($"Fanfic {id} was not found!");

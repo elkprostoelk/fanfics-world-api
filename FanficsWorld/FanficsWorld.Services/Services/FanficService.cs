@@ -42,6 +42,12 @@ public class FanficService : IFanficService
         return _mapper.Map<FanficDto?>(fanfic);
     }
 
+    public async Task<FanficPageDto?> GetDisplayFanficByIdAsync(long id)
+    {
+        var fanfic = await _repository.GetAsync(id);
+        return _mapper.Map<FanficPageDto>(fanfic);
+    }
+
     public async Task<long?> CreateAsync(NewFanficDto newFanficDto, string userId)
     {
         var fanfic = new Fanfic
