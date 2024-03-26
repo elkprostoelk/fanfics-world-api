@@ -14,4 +14,5 @@ public interface IFanficRepository
     Task<long> CountAsync();
     Task UpdateRangeAsync(List<Fanfic> changedFanfics);
     Task<long> CountByStatusAsync(FanficStatus fanficStatus);
+    IQueryable<Fanfic> GetAll();
 }

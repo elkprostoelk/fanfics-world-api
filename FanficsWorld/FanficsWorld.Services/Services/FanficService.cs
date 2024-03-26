@@ -6,6 +6,8 @@ using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
 using Ganss.Xss;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace FanficsWorld.Services.Services;
 
@@ -132,5 +134,165 @@ public class FanficService : IFanficService
             fanfic.Status = fanficStatus;
             await _repository.UpdateAsync(fanfic);
         }
+    }
+
+    public async Task<ServicePagedResultDto<SimpleFanficDto>> SearchFanficsAsync(SearchFanficsDto searchFanficsDto)
+    {
+        const int defaultPage = 1;
+        const int defaultPageSize = 20;
+
+        if (searchFanficsDto is null)
+        {
+            return await GetPageWithFanficsAsync(defaultPage, defaultPageSize);
+        }
+
+        IQueryable<Fanfic> fanficsQuery = _repository.GetAll();
+
+        fanficsQuery = FilterFanfics(fanficsQuery, searchFanficsDto);
+        fanficsQuery = ApplySorting(fanficsQuery, searchFanficsDto.SortBy, searchFanficsDto.SortingOrder);
+
+        var totalItemsCount = await fanficsQuery.CountAsync();
+        fanficsQuery = ApplyPaging(fanficsQuery, searchFanficsDto);
+
+        var pageList = await fanficsQuery.ToListAsync();
+        var dtoList = _mapper.Map<List<SimpleFanficDto>>(pageList);
+        var pagesCount = Convert.ToInt32(Math.Ceiling(totalItemsCount / (double)searchFanficsDto.ItemsPerPage));
+
+        return new ServicePagedResultDto<SimpleFanficDto>
+        {
+            PageContent = dtoList,
+            TotalItems = totalItemsCount,
+            CurrentPage = searchFanficsDto.Page,
+            ItemsPerPage = searchFanficsDto.ItemsPerPage,
+            PagesCount = pagesCount
+        };
+    }
+
+    private static IQueryable<Fanfic> ApplyPaging(IQueryable<Fanfic> fanficsQuery, SearchFanficsDto searchFanficsDto)
+    {
+        return fanficsQuery
+            .Skip((searchFanficsDto.Page - 1) * searchFanficsDto.ItemsPerPage)
+            .Take(searchFanficsDto.ItemsPerPage);
+    }
+
+    private static IQueryable<Fanfic> ApplySorting(IQueryable<Fanfic> fanficsQuery, SortingValue? sortBy, SortingOrder? sortingOrder)
+    {
+        switch (sortBy)
+        {
+            case SortingValue.CreationDate:
+            case null:
+                fanficsQuery = sortingOrder == SortingOrder.Ascending
+                    ? fanficsQuery.OrderBy(f => f.CreatedDate)
+                    : fanficsQuery.OrderByDescending(f => f.CreatedDate);
+                break;
+            case SortingValue.Title:
+                fanficsQuery = sortingOrder == SortingOrder.Ascending
+                    ? fanficsQuery.OrderBy(f => f.Title)
+                    : fanficsQuery.OrderByDescending(f => f.Title);
+                break;
+        }
+
+        return fanficsQuery;
+    }
+
+    private static IQueryable<Fanfic> FilterFanfics(IQueryable<Fanfic> query, SearchFanficsDto searchFanficsDto)
+    {
+        if (!string.IsNullOrWhiteSpace(searchFanficsDto.SearchByTitle))
+        {
+            query = query.Where(f => f.Title.Contains(searchFanficsDto.SearchByTitle));
+        }
+
+        if (searchFanficsDto.FandomIds?.Count > 0)
+        {
+            query = query.Where(f => f.Fandoms.Any(fandom => searchFanficsDto.FandomIds.Contains(fandom.Id)));
+        }
+
+        if (searchFanficsDto.TagIds?.Count > 0)
+        {
+            query = query.Where(f => f.Tags.Any(tag => searchFanficsDto.TagIds.Contains(tag.Id)));
+        }
+
+        query = ApplyOriginsFilter(query, searchFanficsDto.Origins);
+        query = ApplyDirectionsFilter(query, searchFanficsDto.Directions);
+        query = ApplyRatingsFilter(query, searchFanficsDto.Ratings);
+        query = ApplyStatusesFilter(query, searchFanficsDto.Statuses);
+
+        return query;
+    }
+
+    private static IQueryable<Fanfic> ApplyStatusesFilter(IQueryable<Fanfic> query, string? fanficStatuses)
+    {
+        if (string.IsNullOrEmpty(fanficStatuses))
+        {
+            return query;
+        }
+
+        var directions = fanficStatuses
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select<string, FanficStatus?>(d =>
+                {
+                    var parsed = Enum.TryParse<FanficStatus>(d, ignoreCase: true, out var status);
+                    return status;
+                })
+                .TakeWhile(d => d.HasValue)
+                .ToList();
+        return query = query.Where(f => directions.Contains(f.Status));
+    }
+
+    private static IQueryable<Fanfic> ApplyRatingsFilter(IQueryable<Fanfic> query, string? fanficRatings)
+    {
+        if (string.IsNullOrEmpty(fanficRatings))
+        {
+            return query;
+        }
+
+        var directions = fanficRatings
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select<string, FanficRating?>(d =>
+                {
+                    var parsed = Enum.TryParse<FanficRating>(d, ignoreCase: true, out var rating);
+                    return rating;
+                })
+                .TakeWhile(d => d.HasValue)
+                .ToList();
+        return query = query.Where(f => directions.Contains(f.Rating));
+    }
+
+    private static IQueryable<Fanfic> ApplyDirectionsFilter(IQueryable<Fanfic> query, string? fanficDirections)
+    {
+        if (string.IsNullOrEmpty(fanficDirections))
+        {
+            return query;
+        }
+
+        var directions = fanficDirections
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select<string, FanficDirection?>(d =>
+                {
+                    var parsed = Enum.TryParse<FanficDirection>(d, ignoreCase: true, out var direction);
+                    return direction;
+                })
+                .TakeWhile(d => d.HasValue)
+                .ToList();
+        return query = query.Where(f => directions.Contains(f.Direction));
+    }
+
+    private static IQueryable<Fanfic> ApplyOriginsFilter(IQueryable<Fanfic> query, string? fanficOrigins)
+    {
+        if (string.IsNullOrEmpty(fanficOrigins))
+        {
+            return query;
+        }
+
+        var directions = fanficOrigins
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select<string, FanficOrigin?>(d =>
+                {
+                    var parsed = Enum.TryParse<FanficOrigin>(d, ignoreCase: true, out var origin);
+                    return origin;
+                })
+                .TakeWhile(d => d.HasValue)
+                .ToList();
+        return query = query.Where(f => directions.Contains(f.Origin));
     }
 }

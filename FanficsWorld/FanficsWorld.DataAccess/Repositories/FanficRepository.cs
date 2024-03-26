@@ -43,8 +43,16 @@ public class FanficRepository : IFanficRepository
         return await _context.SaveChangesAsync() > 0;
     }
 
+    public IQueryable<Fanfic> GetAll() =>
+        _context.Fanfics.AsNoTracking()
+            .Include(ffic => ffic.Author)
+            .Include(ffic => ffic.Coauthors)
+            .Include(ffic => ffic.Fandoms)
+            .Include(ffic => ffic.Tags);
+
     public IQueryable<Fanfic> GetAllPaged(int pageNumber, int takeCount) =>
-        _context.Fanfics.OrderBy(ffic => ffic.Id)
+        _context.Fanfics
+            .AsNoTracking()
             .Skip((pageNumber - 1) * takeCount)
             .Take(takeCount)
             .Include(ffic => ffic.Author)

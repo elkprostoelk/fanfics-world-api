@@ -12,5 +12,6 @@ public interface IFanficService
     Task<bool> AddTagsToFanficAsync(long fanficId, AddTagsDto addTagsDto);
     Task<ulong?> IncrementFanficViewsCounterAsync(long fanficId);
     Task<ServicePagedResultDto<SimpleFanficDto>> GetPageWithFanficsAsync(int page, int itemsPerPage);
+    Task<ServicePagedResultDto<SimpleFanficDto>> SearchFanficsAsync(SearchFanficsDto searchFanficsDto);
     Task SetFanficStatusAsync(long id, FanficStatus fanficStatus);
 }
