@@ -23,7 +23,8 @@ public static class ServiceBuilderExtensions
 {
     public static void AddConfigurations(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<FanficStatusUpdatingConfiguration>(configuration);
+        services.Configure<FanficStatusUpdatingConfiguration>(
+            configuration.GetSection(nameof(FanficStatusUpdatingConfiguration)));
     }
     
     public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
@@ -45,12 +46,13 @@ public static class ServiceBuilderExtensions
         services.AddScoped<IFandomService, FandomService>();
         services.AddScoped<ITagService, TagService>();
         services.AddScoped<IFeedbackService, FeedbackService>();
+        services.AddTransient<IFanficStatusUpdatingService, FanficsStatusUpdatingService>();
 
         services.AddValidatorsFromAssemblyContaining<LoginUserDtoValidator>();
         services.AddSingleton<IHtmlSanitizer>(_ => new HtmlSanitizer());
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         services.AddRouting(options => options.LowercaseUrls = true);
-        
+
         services.AddQuartz(q =>
         {
             q.AddJobAndTrigger<FanficStatusUpdatingJob>(configuration);

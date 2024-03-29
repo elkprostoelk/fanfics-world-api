@@ -1,5 +1,6 @@
 ﻿using FanficsWorld.Common.Configurations;
 using FanficsWorld.DataAccess;
+using FanficsWorld.Services.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace FanficsWorld.Services.Services;
 
-public class FanficsStatusUpdatingService
+public class FanficsStatusUpdatingService : IFanficStatusUpdatingService
 {
     private readonly ILogger<FanficsStatusUpdatingService> _logger;
     private readonly FanficsDbContext _dbContext;
@@ -30,8 +31,8 @@ public class FanficsStatusUpdatingService
             var parameter = new SqlParameter("@FanficFrozenAfterDays",
                 _fanficStatusUpdatingOptions.FanficFrozenAfterDays);
             
-            var affectedFanficsCount = await _dbContext.Database.ExecuteSqlRawAsync("sp_UpdateFanficStatus @FanficFrozenAfterDays", parameter);
-            _logger.LogInformation("{AffectedFanficsCount} fanfics frozen", affectedFanficsCount);
+            var affectedFanficsCount = await _dbContext.Database.ExecuteSqlRawAsync("EXEC sp_UpdateFanficStatus @FanficFrozenAfterDays", parameter);
+            _logger.LogInformation("{AffectedFanficsCount} fanfic(s) frozen", affectedFanficsCount > 0 ? affectedFanficsCount : 0);
         }
         catch (Exception e)
         {

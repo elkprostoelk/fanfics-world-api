@@ -1,5 +1,6 @@
 ﻿using FanficsWorld.Common.Configurations;
 using FanficsWorld.DataAccess;
+using FanficsWorld.Services.Interfaces;
 using FanficsWorld.Services.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,20 +12,15 @@ namespace FanficsWorld.Services.Jobs;
 [DisallowConcurrentExecution]
 public class FanficStatusUpdatingJob : IJob
 {
-    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IFanficStatusUpdatingService _service;
 
-    public FanficStatusUpdatingJob(IServiceScopeFactory serviceScopeFactory)
+    public FanficStatusUpdatingJob(IFanficStatusUpdatingService service)
     {
-        _serviceScopeFactory = serviceScopeFactory;
+        _service = service;
     }
 
     public async Task Execute(IJobExecutionContext context)
     {
-        using var scope = _serviceScopeFactory.CreateScope();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<FanficsStatusUpdatingService>>();
-        var dbContext = scope.ServiceProvider.GetRequiredService<FanficsDbContext>();
-        var fanficUpdatingOptions = scope.ServiceProvider.GetRequiredService<IOptions<FanficStatusUpdatingConfiguration>>();
-        var service = new FanficsStatusUpdatingService(logger, dbContext, fanficUpdatingOptions);
-        await service.UpdateFanficsStatusesAsync();
+        await _service.UpdateFanficsStatusesAsync();
     }
 }
