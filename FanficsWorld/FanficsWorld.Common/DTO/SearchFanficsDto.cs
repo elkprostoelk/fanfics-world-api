@@ -20,7 +20,7 @@ namespace FanficsWorld.Common.DTO
 
         public SortingValue? SortBy { get; set; }
 
-        public SortingOrder? SortingOrder { get; set; }
+        public SortingOrder? SortOrder { get; set; }
 
         public int Page { get; set; } = 1;
 

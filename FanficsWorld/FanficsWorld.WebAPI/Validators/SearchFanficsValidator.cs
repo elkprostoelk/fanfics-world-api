@@ -7,13 +7,13 @@ namespace FanficsWorld.WebAPI.Validators
     {
         public SearchFanficsValidator()
         {
-            When(dto => dto.SortingOrder.HasValue, () =>
+            When(dto => dto.SortOrder.HasValue, () =>
             {
                 RuleFor(dto => dto.SortBy)
                     .NotNull()
                     .IsInEnum();
 
-                RuleFor(dto => dto.SortingOrder)
+                RuleFor(dto => dto.SortOrder)
                     .IsInEnum();
             });
         }

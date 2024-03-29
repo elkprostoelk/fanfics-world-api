@@ -149,7 +149,7 @@ public class FanficService : IFanficService
         IQueryable<Fanfic> fanficsQuery = _repository.GetAll();
 
         fanficsQuery = FilterFanfics(fanficsQuery, searchFanficsDto);
-        fanficsQuery = ApplySorting(fanficsQuery, searchFanficsDto.SortBy, searchFanficsDto.SortingOrder);
+        fanficsQuery = ApplySorting(fanficsQuery, searchFanficsDto.SortBy, searchFanficsDto.SortOrder);
 
         var totalItemsCount = await fanficsQuery.CountAsync();
         fanficsQuery = ApplyPaging(fanficsQuery, searchFanficsDto);
