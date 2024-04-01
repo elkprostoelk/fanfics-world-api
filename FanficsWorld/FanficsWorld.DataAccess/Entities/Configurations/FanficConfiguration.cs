@@ -39,12 +39,10 @@ public class FanficConfiguration : IEntityTypeConfiguration<Fanfic>
             .UsingEntity<FanficCoauthor>(x => 
                     x.HasOne(fc => fc.Coauthor)
                         .WithMany(u => u.FanficCoauthors)
-                        .HasForeignKey(fc => fc.CoauthorId)
-                        .OnDelete(DeleteBehavior.Restrict), 
+                        .HasForeignKey(fc => fc.CoauthorId), 
                 x => x.HasOne(fc => fc.Fanfic)
                         .WithMany(f => f.FanficCoauthors)
-                        .HasForeignKey(fc => fc.FanficId)
-                        .OnDelete(DeleteBehavior.Restrict),
+                        .HasForeignKey(fc => fc.FanficId),
                 x =>
                 {
                     x.HasKey(fc => new {fc.FanficId, fc.CoauthorId});
