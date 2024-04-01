@@ -15,12 +15,16 @@ public class FanficController : ControllerBase
     private readonly IFanficService _service;
     private readonly IValidator<NewFanficDto> _newFanficValidator;
     private static readonly Mutex FanficViewsCounterMutex = new();
+    private readonly IValidator<EditFanficDto> _editFanficValidator;
 
-    public FanficController(IFanficService service,
-        IValidator<NewFanficDto> newFanficValidator)
+    public FanficController(
+        IFanficService service,
+        IValidator<NewFanficDto> newFanficValidator,
+        IValidator<EditFanficDto> editFanficValidator)
     {
         _service = service;
         _newFanficValidator = newFanficValidator;
+        _editFanficValidator = editFanficValidator;
     }
 
     [HttpGet("{id:long}")]
@@ -106,6 +110,29 @@ public class FanficController : ControllerBase
         {
             FanficViewsCounterMutex.ReleaseMutex();
         }
+    }
+
+    [Authorize]
+    [HttpPut]
+    public async Task<IActionResult> EditFanficAsync(EditFanficDto editFanficDto)
+    {
+        var validationResult = await _editFanficValidator.ValidateAsync(editFanficDto);
+        if (!validationResult.IsValid)
+        {
+            validationResult.AddToModelState(ModelState);
+            return BadRequest(ModelState);
+        }
+        
+        var fanfic = await _service.GetByIdAsync(editFanficDto.Id);
+        if (fanfic is null)
+        {
+            return NotFound();
+        }
+
+        var edited = await _service.EditAsync(editFanficDto);
+        return edited
+            ? NoContent()
+            : BadRequest();
     }
 
     [Authorize]

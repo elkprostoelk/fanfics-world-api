@@ -20,7 +20,9 @@ public class FanficRepository : IFanficRepository
             .Include(f => f.Coauthors)
             .Include(f => f.FanficCoauthors)
             .Include(f => f.Fandoms)
+            .Include(f => f.FanficFandoms)
             .Include(f => f.Tags)
+            .Include(f => f.FanficTags)
             .FirstOrDefaultAsync(f => f.Id == id);
 
     public async Task<long?> AddAsync(Fanfic fanfic)

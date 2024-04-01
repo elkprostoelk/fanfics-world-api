@@ -136,6 +136,69 @@ public class FanficService : IFanficService
         }
     }
 
+    public async Task<bool> EditAsync(EditFanficDto editFanficDto)
+    {
+        var fanfic = await _repository.GetAsync(editFanficDto.Id);
+        if (fanfic is null)
+        {
+            return false;
+        }
+
+        fanfic.Title = editFanficDto.Title;
+        fanfic.Annotation = editFanficDto.Annotation;
+        fanfic.Direction = editFanficDto.Direction;
+        fanfic.Origin = editFanficDto.Origin;
+        fanfic.Rating = editFanficDto.Rating;
+        fanfic.Status = editFanficDto.Status;
+        fanfic.Text = editFanficDto.Text;
+
+        EditCoauthors(fanfic, editFanficDto);
+        EditFandoms(fanfic, editFanficDto);
+        EditTags(fanfic, editFanficDto);
+        
+        var updated = await _repository.UpdateAsync(fanfic);
+        return updated;
+    }
+
+    private static void EditTags(Fanfic fanfic, EditFanficDto editFanficDto)
+    {
+        var commonTagIds = fanfic
+            .Tags
+            .Select(c => c.Id)
+            .Intersect(editFanficDto.TagIds)
+            .ToList();
+        var missingTagIds = editFanficDto.TagIds.Except(commonTagIds).ToList();
+        var tagIdsToRemove = fanfic.Tags.Select(c => c.Id).Except(commonTagIds).ToList();
+        missingTagIds.ForEach(missingId => fanfic.FanficTags.Add(new FanficTag {TagId = missingId, FanficId = fanfic.Id}));
+        fanfic.FanficTags.RemoveAll(ft => tagIdsToRemove.Contains(ft.TagId));
+    }
+
+    private static void EditFandoms(Fanfic fanfic, EditFanficDto editFanficDto)
+    {
+        var commonFandomIds = fanfic
+            .Fandoms
+            .Select(c => c.Id)
+            .Intersect(editFanficDto.FandomIds)
+            .ToList();
+        var missingFandomIds = editFanficDto.FandomIds.Except(commonFandomIds).ToList();
+        var fandomIdsToRemove = fanfic.Fandoms.Select(c => c.Id).Except(commonFandomIds).ToList();
+        missingFandomIds.ForEach(missingId => fanfic.FanficFandoms.Add(new FanficFandom {FandomId = missingId, FanficId = fanfic.Id}));
+        fanfic.FanficFandoms.RemoveAll(ff => fandomIdsToRemove.Contains(ff.FandomId));
+    }
+
+    private static void EditCoauthors(Fanfic fanfic, EditFanficDto editFanficDto)
+    {
+        var commonCoauthorIds = fanfic
+            .Coauthors
+            .Select(c => c.Id)
+            .Intersect(editFanficDto.CoauthorIds)
+            .ToList();
+        var missingCoauthorIds = editFanficDto.CoauthorIds.Except(commonCoauthorIds).ToList();
+        var coauthorIdsToRemove = fanfic.Coauthors.Select(c => c.Id).Except(commonCoauthorIds).ToList();
+        missingCoauthorIds.ForEach(missingId => fanfic.FanficCoauthors.Add(new FanficCoauthor {CoauthorId = missingId, FanficId = fanfic.Id}));
+        fanfic.FanficCoauthors.RemoveAll(fc => coauthorIdsToRemove.Contains(fc.CoauthorId));
+    }
+
     public async Task<ServicePagedResultDto<SimpleFanficDto>> SearchFanficsAsync(SearchFanficsDto searchFanficsDto)
     {
         const int defaultPage = 1;
@@ -236,7 +299,7 @@ public class FanficService : IFanficService
                 })
                 .TakeWhile(d => d.HasValue)
                 .ToList();
-        return query = query.Where(f => directions.Contains(f.Status));
+        return query.Where(f => directions.Contains(f.Status));
     }
 
     private static IQueryable<Fanfic> ApplyRatingsFilter(IQueryable<Fanfic> query, string? fanficRatings)
@@ -255,7 +318,7 @@ public class FanficService : IFanficService
                 })
                 .TakeWhile(d => d.HasValue)
                 .ToList();
-        return query = query.Where(f => directions.Contains(f.Rating));
+        return query.Where(f => directions.Contains(f.Rating));
     }
 
     private static IQueryable<Fanfic> ApplyDirectionsFilter(IQueryable<Fanfic> query, string? fanficDirections)
@@ -274,7 +337,7 @@ public class FanficService : IFanficService
                 })
                 .TakeWhile(d => d.HasValue)
                 .ToList();
-        return query = query.Where(f => directions.Contains(f.Direction));
+        return query.Where(f => directions.Contains(f.Direction));
     }
 
     private static IQueryable<Fanfic> ApplyOriginsFilter(IQueryable<Fanfic> query, string? fanficOrigins)
@@ -293,6 +356,6 @@ public class FanficService : IFanficService
                 })
                 .TakeWhile(d => d.HasValue)
                 .ToList();
-        return query = query.Where(f => directions.Contains(f.Origin));
+        return query.Where(f => directions.Contains(f.Origin));
     }
 }

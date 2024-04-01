@@ -14,4 +14,5 @@ public interface IFanficService
     Task<ServicePagedResultDto<SimpleFanficDto>> GetPageWithFanficsAsync(int page, int itemsPerPage);
     Task<ServicePagedResultDto<SimpleFanficDto>> SearchFanficsAsync(SearchFanficsDto searchFanficsDto);
     Task SetFanficStatusAsync(long id, FanficStatus fanficStatus);
+    Task<bool> EditAsync(EditFanficDto editFanficDto);
 }
