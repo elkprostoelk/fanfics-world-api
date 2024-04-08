@@ -32,5 +32,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsUnique();
         builder.HasIndex(u => u.NormalizedEmail)
             .IsUnique();
+
+        builder.HasMany(u => u.FanficComments)
+            .WithOne(fc => fc.Author)
+            .HasForeignKey(u => u.AuthorId);
+
+        builder.HasMany(u => u.FanficCommentReactions)
+            .WithOne(r => r.User)
+            .HasForeignKey(r => r.UserId);
     }
 }

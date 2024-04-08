@@ -18,6 +18,10 @@ public class FanficsDbContext : IdentityDbContext<User>
     public DbSet<Tag> Tags { get; set; }
     
     public DbSet<Feedback> Feedbacks { get; set; }
+    
+    public DbSet<FanficComment> FanficComments { get; set; }
+    
+    public DbSet<FanficCommentReaction> FanficCommentReactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

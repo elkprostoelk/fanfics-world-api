@@ -81,5 +81,9 @@ public class FanficConfiguration : IEntityTypeConfiguration<Fanfic>
                     ftBuilder.HasKey(ft => new {ft.FanficId, ft.TagId});
                     ftBuilder.ToTable("FanficTags");
                 });
+
+        builder.HasMany(f => f.Comments)
+            .WithOne(fc => fc.Fanfic)
+            .HasForeignKey(fc => fc.FanficId);
     }
 }

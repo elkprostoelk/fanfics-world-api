@@ -13,4 +13,8 @@ public class User : IdentityUser
     public List<Fanfic> CoauthoredFanfics { get; set; }
 
     public List<FanficCoauthor> FanficCoauthors { get; set; }
+
+    public List<FanficComment> FanficComments { get; set; }
+
+    public List<FanficCommentReaction> FanficCommentReactions { get; set; }
 }

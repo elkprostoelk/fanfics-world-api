@@ -40,12 +40,14 @@ public static class ServiceBuilderExtensions
         services.AddScoped<IFandomRepository, FandomRepository>();
         services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+        services.AddScoped<IFanficCommentRepository, FanficCommentRepository>();
 
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IFanficService, FanficService>();
         services.AddScoped<IFandomService, FandomService>();
         services.AddScoped<ITagService, TagService>();
         services.AddScoped<IFeedbackService, FeedbackService>();
+        services.AddScoped<IFanficCommentService, FanficCommentService>();
         services.AddTransient<IFanficStatusUpdatingService, FanficsStatusUpdatingService>();
 
         services.AddValidatorsFromAssemblyContaining<LoginUserDtoValidator>();
