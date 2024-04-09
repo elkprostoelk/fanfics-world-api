@@ -39,10 +39,12 @@ public class FanficConfiguration : IEntityTypeConfiguration<Fanfic>
             .UsingEntity<FanficCoauthor>(x => 
                     x.HasOne(fc => fc.Coauthor)
                         .WithMany(u => u.FanficCoauthors)
-                        .HasForeignKey(fc => fc.CoauthorId), 
+                        .HasForeignKey(fc => fc.CoauthorId)
+                        .OnDelete(DeleteBehavior.ClientCascade), 
                 x => x.HasOne(fc => fc.Fanfic)
                         .WithMany(f => f.FanficCoauthors)
-                        .HasForeignKey(fc => fc.FanficId),
+                        .HasForeignKey(fc => fc.FanficId)
+                        .OnDelete(DeleteBehavior.ClientCascade),
                 x =>
                 {
                     x.HasKey(fc => new {fc.FanficId, fc.CoauthorId});
@@ -55,10 +57,12 @@ public class FanficConfiguration : IEntityTypeConfiguration<Fanfic>
                 ffBuilder => 
                     ffBuilder.HasOne(ff => ff.Fandom)
                         .WithMany(ffic => ffic.FanficFandoms)
-                        .HasForeignKey(ff => ff.FandomId),
+                        .HasForeignKey(ff => ff.FandomId)
+                        .OnDelete(DeleteBehavior.ClientCascade),
                 ffBuilder => ffBuilder.HasOne(ff => ff.Fanfic)
                     .WithMany(fdom => fdom.FanficFandoms)
-                    .HasForeignKey(ff => ff.FanficId),
+                    .HasForeignKey(ff => ff.FanficId)
+                    .OnDelete(DeleteBehavior.ClientCascade),
                 ffBuilder =>
                 {
                     ffBuilder.HasKey(ff => new {ff.FandomId, ff.FanficId});
@@ -71,11 +75,13 @@ public class FanficConfiguration : IEntityTypeConfiguration<Fanfic>
                 ftBuilder =>
                     ftBuilder.HasOne(ft => ft.Tag)
                     .WithMany(t => t.FanficTags)
-                    .HasForeignKey(ft => ft.TagId),
+                    .HasForeignKey(ft => ft.TagId)
+                    .OnDelete(DeleteBehavior.ClientCascade),
                 ftBuilder =>
                     ftBuilder.HasOne(ft => ft.Fanfic)
                     .WithMany(ffic => ffic.FanficTags)
-                    .HasForeignKey(ft => ft.FanficId),
+                    .HasForeignKey(ft => ft.FanficId)
+                    .OnDelete(DeleteBehavior.ClientCascade),
                 ftBuilder =>
                 {
                     ftBuilder.HasKey(ft => new {ft.FanficId, ft.TagId});
@@ -84,6 +90,7 @@ public class FanficConfiguration : IEntityTypeConfiguration<Fanfic>
 
         builder.HasMany(f => f.Comments)
             .WithOne(fc => fc.Fanfic)
-            .HasForeignKey(fc => fc.FanficId);
+            .HasForeignKey(fc => fc.FanficId)
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

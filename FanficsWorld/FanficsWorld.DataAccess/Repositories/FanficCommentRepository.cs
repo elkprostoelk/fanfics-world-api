@@ -57,4 +57,10 @@ public class FanficCommentRepository : IFanficCommentRepository
         _context.FanficCommentReactions.Update(fanficCommentReaction);
         return await _context.SaveChangesAsync() > 0;
     }
+
+    public async Task<bool> DeleteAsync(FanficComment comment)
+    {
+        _context.FanficComments.Remove(comment);
+        return await _context.SaveChangesAsync() > 0;
+    }
 }

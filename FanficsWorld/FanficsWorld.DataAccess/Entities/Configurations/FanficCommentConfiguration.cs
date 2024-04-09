@@ -19,6 +19,6 @@ public class FanficCommentConfiguration : IEntityTypeConfiguration<FanficComment
         builder.HasMany(fc => fc.Reactions)
             .WithOne(r => r.FanficComment)
             .HasForeignKey(r => r.FanficCommentId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

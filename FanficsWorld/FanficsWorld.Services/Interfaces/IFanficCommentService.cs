@@ -8,4 +8,5 @@ public interface IFanficCommentService
     Task<ServiceResultDto> SendFanficCommentAsync(SentFanficCommentDto sentFanficCommentDto, string? userId);
     Task<FanficCommentDto?> GetByIdAsync(long commentId);
     Task<ServiceResultDto> SetFanficCommentReactionAsync(long commentId, bool? userLiked, string? userId);
+    Task<ServiceResultDto> DeleteCommentAsync(long commentId);
 }

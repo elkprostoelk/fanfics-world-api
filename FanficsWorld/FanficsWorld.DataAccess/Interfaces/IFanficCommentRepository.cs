@@ -10,4 +10,5 @@ public interface IFanficCommentRepository
     Task<bool> RemoveCommentReactionAsync(FanficCommentReaction fanficCommentReaction);
     Task<bool> AddCommentReactionAsync(FanficCommentReaction reaction);
     Task<bool> UpdateCommentReactionAsync(FanficCommentReaction fanficCommentReaction);
+    Task<bool> DeleteAsync(FanficComment fanficComment);
 }

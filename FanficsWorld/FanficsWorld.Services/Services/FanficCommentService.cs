@@ -192,6 +192,32 @@ public class FanficCommentService : IFanficCommentService
         return new ServiceResultDto();
     }
 
+    public async Task<ServiceResultDto> DeleteCommentAsync(long commentId)
+    {
+        var comment = await _repository.GetAsync(commentId);
+        if (comment is null)
+        {
+            _logger.LogWarning("Cannot delete a fanfic comment {CommentId}, it does not exist.", commentId);
+            return new ServiceResultDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "This comment does not exist!"
+            };
+        }
+
+        var deleted = await _repository.DeleteAsync(comment);
+        if (deleted)
+        {
+            return new ServiceResultDto();
+        }
+
+        return new ServiceResultDto
+        {
+            IsSuccess = false,
+            ErrorMessage = "Cannot delete this comment!"
+        };
+    }
+
     private static bool IsReactionAlreadySet(FanficCommentReaction? existingFanficCommentReaction, bool? userLiked)
     {
         bool? existingFanficCommentReactionIsLike = existingFanficCommentReaction?.IsLike;

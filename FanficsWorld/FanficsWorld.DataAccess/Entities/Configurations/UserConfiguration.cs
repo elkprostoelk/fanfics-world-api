@@ -35,10 +35,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasMany(u => u.FanficComments)
             .WithOne(fc => fc.Author)
-            .HasForeignKey(u => u.AuthorId);
+            .HasForeignKey(u => u.AuthorId)
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         builder.HasMany(u => u.FanficCommentReactions)
             .WithOne(r => r.User)
-            .HasForeignKey(r => r.UserId);
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

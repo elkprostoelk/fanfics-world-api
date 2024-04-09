@@ -57,5 +57,16 @@ namespace FanficsWorld.WebAPI.Controllers
                 ? NoContent()
                 : BadRequest(fanficCommentReactionResult);
         }
+
+        [Authorize]
+        [HttpDelete("{commentId:long}")]
+        public async Task<IActionResult> DeleteCommentAsync(long commentId)
+        {
+            var deletingResult = await _service.DeleteCommentAsync(commentId);
+
+            return deletingResult.IsSuccess
+                ? NoContent()
+                : BadRequest(deletingResult);
+        }
     }
 }
