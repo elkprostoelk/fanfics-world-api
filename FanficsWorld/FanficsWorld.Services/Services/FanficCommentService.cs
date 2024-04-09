@@ -46,10 +46,10 @@ public class FanficCommentService : IFanficCommentService
             Text = fc.Text,
             Author = _mapper.Map<SimpleUserDto>(fc.Author),
             CurrentUserReaction = !string.IsNullOrEmpty(userId)
-                ? fc.Reactions.FirstOrDefault(r => r.UserId == userId)?.IsLike
+                ? fc.Reactions?.FirstOrDefault(r => r.UserId == userId)?.IsLike
                 : null,
-            LikesCount = fc.Reactions.Count(r => r.IsLike),
-            DislikesCount = fc.Reactions.Count(r => !r.IsLike)
+            LikesCount = fc.Reactions?.Count(r => r.IsLike) ?? 0,
+            DislikesCount = fc.Reactions?.Count(r => !r.IsLike) ?? 0
         }).ToList();
     }
 

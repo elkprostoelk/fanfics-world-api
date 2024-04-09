@@ -18,6 +18,7 @@ public class FanficCommentRepository : IFanficCommentRepository
             .Include(fc => fc.Fanfic)
             .Include(fc => fc.Author)
             .Include(fc => fc.Reactions)
+            .OrderByDescending(fc => fc.CreatedDate)
             .ToListAsync();
 
     public async Task<bool> AddCommentAsync(FanficComment comment)
