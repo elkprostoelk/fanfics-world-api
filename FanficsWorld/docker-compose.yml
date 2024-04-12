@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+  fanficsworld.database:
+      image: mcr.microsoft.com/mssql/server:latest
+      container_name: fanficsworld-database
+      environment:
+        SA_PASSWORD: "YourStrong!Passw0rd"
+        ACCEPT_EULA: "Y"
+      ports:
+        - "1433:1433"
+      volumes:
+        - ./data:/var/opt/mssql/data
+
+  fanficsworld.seq:
+    image: datalust/seq:latest
+    container_name: fanficsworld-seq
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5341:5341
+      - 8081:80
+
+  fanficsworld.webapi:
+    image: ${DOCKER_REGISTRY-}fanficsworldwebapi
+    container_name: fanficsworld-webapi
+    build:
+      context: .
+      dockerfile: FanficsWorld.WebAPI/Dockerfile
+    environment:
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "Fanf1c$$W0rld"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/app/fanficsworld.pfx"
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 5000
+      ASPNETCORE_HTTPS_PORTS: 5001
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    depends_on:
+      - fanficsworld.database
+      - fanficsworld.seq

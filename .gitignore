@@ -361,3 +361,5 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/rider,aspnetcore,dotnetcore
 /FanficsWorld/FanficsWorld.WebAPI/logs
+
+/FanficsWorld/data
