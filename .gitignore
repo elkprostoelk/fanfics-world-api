@@ -363,3 +363,6 @@ fabric.properties
 /FanficsWorld/FanficsWorld.WebAPI/logs
 
 /FanficsWorld/data
+*.crt
+*.pfx
+*.key
