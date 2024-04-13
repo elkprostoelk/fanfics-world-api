@@ -22,6 +22,8 @@ namespace FanficsWorld.WebAPI.Controllers.v2
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(ServicePagedResultDto<SimpleFanficDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> SearchFanficsAsync([FromQuery] SearchFanficsDto searchFanficsDto)
         {
             var validationResult = await _searchFanficsValidator.ValidateAsync(searchFanficsDto);

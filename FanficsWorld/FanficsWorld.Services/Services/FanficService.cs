@@ -8,6 +8,7 @@ using Ganss.Xss;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.Services.Services;
 
@@ -19,7 +20,7 @@ public class FanficService : IFanficService
     private readonly IHtmlSanitizer _sanitizer;
     private readonly IFandomRepository _fandomRepository;
     private readonly ITagRepository _tagRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<FanficService> _logger;
 
     public FanficService(IFanficRepository repository,
         IMapper mapper,
@@ -27,7 +28,7 @@ public class FanficService : IFanficService
         IHtmlSanitizer sanitizer,
         IFandomRepository fandomRepository,
         ITagRepository tagRepository,
-        IUnitOfWork unitOfWork)
+        ILogger<FanficService> logger)
     {
         _repository = repository;
         _mapper = mapper;
@@ -35,7 +36,7 @@ public class FanficService : IFanficService
         _sanitizer = sanitizer;
         _fandomRepository = fandomRepository;
         _tagRepository = tagRepository;
-        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<FanficDto?> GetByIdAsync(long id)
@@ -50,8 +51,18 @@ public class FanficService : IFanficService
         return _mapper.Map<FanficPageDto>(fanfic);
     }
 
-    public async Task<long?> CreateAsync(NewFanficDto newFanficDto, string userId)
+    public async Task<ServiceResultDto<long?>> CreateAsync(NewFanficDto newFanficDto, string? userId)
     {
+        if (string.IsNullOrEmpty(userId))
+        {
+            _logger.LogWarning("Cannot recognize a user ID. Fanfic cannot not be created.");
+            return new ServiceResultDto<long?>
+            {
+                IsSuccess = false,
+                ErrorMessage = "User ID was not specified!"
+            };
+        }
+        
         var fanfic = new Fanfic
         {
             Title = _sanitizer.Sanitize(newFanficDto.Title),
@@ -67,33 +78,34 @@ public class FanficService : IFanficService
             Tags = await _tagRepository.GetRangeAsync(newFanficDto.TagIds ?? [])
         };
         
-        
-        
         var fanficId = await _repository.AddAsync(fanfic);
-        return fanficId;
+        return new ServiceResultDto<long?>
+        {
+            IsSuccess = fanficId.HasValue,
+            Result = fanficId,
+            ErrorMessage = fanficId.HasValue ? null : "Cannot create a fanfic!"
+        };
     }
 
-    public async Task<bool> DeleteAsync(long id)
-    {
-        var fanfic = await _repository.GetAsync(id);
-        return fanfic is not null && await _repository.DeleteAsync(fanfic);
-    }
-
-    public async Task<bool> AddTagsToFanficAsync(long fanficId, AddTagsDto addTagsDto)
+    public async Task<ServiceResultDto> DeleteAsync(long fanficId)
     {
         var fanfic = await _repository.GetAsync(fanficId);
         if (fanfic is null)
         {
-            return false;
+            _logger.LogWarning("Cannot find and delete a fanfic {FanficId}", fanficId);
+            return new ServiceResultDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "Cannot delete a non-existing fanfic!"
+            };
         }
         
-        var tags = await _tagRepository.GetRangeAsync(addTagsDto.TagIds);
-        foreach (var tag in tags)
+        var deleted = await _repository.DeleteAsync(fanfic);
+        return new ServiceResultDto
         {
-            fanfic.Tags.Add(tag);
-        }
-
-        return await _repository.UpdateAsync(fanfic);
+            IsSuccess = deleted,
+            ErrorMessage = deleted ? null : "Cannot delete a fanfic!"
+        };
     }
 
     public async Task<ulong?> IncrementFanficViewsCounterAsync(long fanficId)
@@ -136,12 +148,17 @@ public class FanficService : IFanficService
         }
     }
 
-    public async Task<bool> EditAsync(EditFanficDto editFanficDto)
+    public async Task<ServiceResultDto> EditAsync(EditFanficDto editFanficDto)
     {
         var fanfic = await _repository.GetAsync(editFanficDto.Id);
         if (fanfic is null)
         {
-            return false;
+            _logger.LogWarning("Could not find and edit a fanfic {FanficId}", editFanficDto.Id);
+            return new ServiceResultDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "Fanfic does not exist!"
+            };
         }
 
         fanfic.Title = editFanficDto.Title;
@@ -157,7 +174,11 @@ public class FanficService : IFanficService
         EditTags(fanfic, editFanficDto);
         
         var updated = await _repository.UpdateAsync(fanfic);
-        return updated;
+        return new ServiceResultDto
+        {
+            IsSuccess = updated,
+            ErrorMessage = updated ? null : "Cannot edit a fanfic!"
+        };
     }
 
     private static void EditTags(Fanfic fanfic, EditFanficDto editFanficDto)
@@ -240,20 +261,16 @@ public class FanficService : IFanficService
 
     private static IQueryable<Fanfic> ApplySorting(IQueryable<Fanfic> fanficsQuery, SortingValue? sortBy, SortingOrder? sortingOrder)
     {
-        switch (sortBy)
+        fanficsQuery = sortBy switch
         {
-            case SortingValue.CreationDate:
-            case null:
-                fanficsQuery = sortingOrder == SortingOrder.Ascending
-                    ? fanficsQuery.OrderBy(f => f.CreatedDate)
-                    : fanficsQuery.OrderByDescending(f => f.CreatedDate);
-                break;
-            case SortingValue.Title:
-                fanficsQuery = sortingOrder == SortingOrder.Ascending
-                    ? fanficsQuery.OrderBy(f => f.Title)
-                    : fanficsQuery.OrderByDescending(f => f.Title);
-                break;
-        }
+            SortingValue.CreationDate or null => sortingOrder == SortingOrder.Ascending
+                ? fanficsQuery.OrderBy(f => f.CreatedDate)
+                : fanficsQuery.OrderByDescending(f => f.CreatedDate),
+            SortingValue.Title => sortingOrder == SortingOrder.Ascending
+                ? fanficsQuery.OrderBy(f => f.Title)
+                : fanficsQuery.OrderByDescending(f => f.Title),
+            _ => fanficsQuery
+        };
 
         return fanficsQuery;
     }

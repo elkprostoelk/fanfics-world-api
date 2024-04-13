@@ -2,7 +2,6 @@
 using FanficsWorld.Services.Interfaces;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FanficsWorld.WebAPI.Controllers;
@@ -14,20 +13,21 @@ public class AuthController : ControllerBase
     private readonly IUserService _userService;
     private readonly IValidator<LoginUserDto> _loginValidator;
     private readonly IValidator<RegisterUserDto> _registerValidator;
-    private readonly IValidator<ChangePasswordDto> _changePasswordValidator;
 
     public AuthController(IUserService userService,
         IValidator<LoginUserDto> loginValidator,
-        IValidator<RegisterUserDto> registerValidator,
-        IValidator<ChangePasswordDto> changePasswordValidator)
+        IValidator<RegisterUserDto> registerValidator)
     {
         _userService = userService;
         _loginValidator = loginValidator;
         _registerValidator = registerValidator;
-        _changePasswordValidator = changePasswordValidator;
     }
 
     [HttpPost("login")]
+    [ProducesResponseType(typeof(UserTokenDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Login(LoginUserDto loginUserDto)
     {
         var validationResult = await _loginValidator.ValidateAsync(loginUserDto);
@@ -50,6 +50,8 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterUser(RegisterUserDto registerUserDto)
     {
         var validationResult = await _registerValidator.ValidateAsync(registerUserDto);
@@ -63,28 +65,5 @@ public class AuthController : ControllerBase
         return registered.Succeeded
             ? StatusCode(201)
             : BadRequest("An error occured while registering the user");
-    }
-
-    [Authorize]
-    [HttpPatch("change-password/{id}")]
-    public async Task<IActionResult> ChangePassword(string id, ChangePasswordDto changePasswordDto)
-    {
-        var validationResult = await _changePasswordValidator.ValidateAsync(changePasswordDto);
-        if (!validationResult.IsValid)
-        {
-            validationResult.AddToModelState(ModelState);
-            return BadRequest(ModelState);
-        }
-        
-        var userExists = await _userService.UserExistsAsync(id);
-        if (!userExists)
-        {
-            return NotFound();
-        }
-
-        var changed = await _userService.ChangePasswordAsync(id, changePasswordDto);
-        return changed
-            ? NoContent()
-            : BadRequest("Error while changing a password!");
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FanficsWorld.WebAPI.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class FanficCommentController : ControllerBase
@@ -23,15 +24,18 @@ namespace FanficsWorld.WebAPI.Controllers
             _sentFanficCommentValidator = sentFanficCommentValidator;
         }
 
+        [AllowAnonymous]
         [HttpGet("all/{fanficId:long}")]
+        [ProducesResponseType(typeof(List<FanficCommentDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFanficCommentsAsync(long fanficId)
         {
             var fanficComments = await _service.GetFanficCommentsAsync(fanficId, User.GetUserId());
             return Ok(fanficComments);
         }
 
-        [Authorize]
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> SendFanficCommentAsync(SentFanficCommentDto sentFanficCommentDto)
         {
             var validationResult = await _sentFanficCommentValidator.ValidateAsync(sentFanficCommentDto);
@@ -47,8 +51,9 @@ namespace FanficsWorld.WebAPI.Controllers
                 : BadRequest(addingResult);
         }
 
-        [Authorize]
         [HttpPost("{commentId:long}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> SetFanficCommentReactionAsync(long commentId, [FromQuery] bool? userLiked)
         {
             var fanficCommentReactionResult = await _service.SetFanficCommentReactionAsync(commentId, userLiked, User.GetUserId());
@@ -58,8 +63,9 @@ namespace FanficsWorld.WebAPI.Controllers
                 : BadRequest(fanficCommentReactionResult);
         }
 
-        [Authorize]
         [HttpDelete("{commentId:long}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteCommentAsync(long commentId)
         {
             var deletingResult = await _service.DeleteCommentAsync(commentId);

@@ -5,6 +5,7 @@ using FanficsWorld.Services.Services;
 using FanficsWorld.UnitTests.TestData;
 using FanficsWorld.WebAPI.Configurations;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.UnitTests.Services;
 
@@ -20,7 +21,8 @@ public class UserServiceTests
             .CreateMapper();
         IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         _userRepositoryMock = new Mock<IUserRepository>();
-        _userService = new UserService(_userRepositoryMock.Object, mapper, configuration);
+        var loggerMock = new Mock<ILogger<UserService>>();
+        _userService = new UserService(_userRepositoryMock.Object, mapper, configuration, loggerMock.Object);
     }
 
     [Theory]

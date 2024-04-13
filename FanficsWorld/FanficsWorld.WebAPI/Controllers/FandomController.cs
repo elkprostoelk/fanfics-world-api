@@ -22,15 +22,19 @@ public class FandomController : ControllerBase
     }
 
     [HttpGet("top10")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTop10FandomsAsync() => 
         Ok(await _service.GetTop10FandomsAsync());
 
     [HttpGet("search")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFandomsByTitleAsync([FromQuery]string title) =>
         Ok(await _service.SearchByTitleAsync(title));
 
     [Authorize(Roles = "Admin")]
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateFandomAsync(NewFandomDto newFandomDto)
     {
         var validationResult = await _newFandomValidator.ValidateAsync(newFandomDto);
@@ -40,14 +44,16 @@ public class FandomController : ControllerBase
             return BadRequest(ModelState);
         }
         
-        var createdFandomId = await _service.CreateAsync(newFandomDto);
+        var createResult = await _service.CreateAsync(newFandomDto);
         
-        return createdFandomId.HasValue
-            ? StatusCode(201, createdFandomId)
-            : BadRequest("An error occured while creating a fandom");
+        return createResult.IsSuccess
+            ? StatusCode(201, createResult.Result)
+            : BadRequest(createResult);
     }
 
     [HttpGet("{id:long}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFandomAndFanficsAsync(long id)
     {
         var fandom = await _service.GetFandomWithFanficsAsync(id);

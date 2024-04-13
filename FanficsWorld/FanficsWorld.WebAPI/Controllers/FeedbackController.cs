@@ -16,10 +16,14 @@ namespace FanficsWorld.WebAPI.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> SendFeedbackAsync(SendFeedbackDto request)
         {
-            var sent = await _service.SendFeedbackAsync(request);
-            return sent ? Ok() : BadRequest();
+            var sentResult = await _service.SendFeedbackAsync(request);
+            return sentResult.IsSuccess
+                ? StatusCode(201)
+                : BadRequest(sentResult);
         }
     }
 }

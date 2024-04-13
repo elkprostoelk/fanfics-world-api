@@ -28,6 +28,8 @@ public class FanficController : ControllerBase
     }
 
     [HttpGet("{id:long}")]
+    [ProducesResponseType(typeof(FanficPageDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFanficAsync(long id)
     {
         var fanfic = await _service.GetDisplayFanficByIdAsync(id);
@@ -40,6 +42,9 @@ public class FanficController : ControllerBase
     }
 
     [HttpGet]
+    [Obsolete("Use v2 Search endpoint instead")]
+    [ProducesResponseType(typeof(ServicePagedResultDto<SimpleFanficDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetFanficsPageAsync(int page = 1, int itemsPerPage = 20)
     {
         if (page <= 0 || itemsPerPage <= 0)
@@ -52,6 +57,8 @@ public class FanficController : ControllerBase
 
     [Authorize]
     [HttpPost]
+    [ProducesResponseType(typeof(long?), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateFanficAsync(NewFanficDto newFanficDto)
     {
         var validationResult = await _newFanficValidator.ValidateAsync(newFanficDto);
@@ -61,32 +68,11 @@ public class FanficController : ControllerBase
             return BadRequest(ModelState);
         }
         
-        var createdFanficId = await _service.CreateAsync(newFanficDto, User.GetUserId()!);
+        var createResult = await _service.CreateAsync(newFanficDto, User.GetUserId());
         
-        return createdFanficId.HasValue
-            ? StatusCode(201, createdFanficId)
-            : BadRequest("An error occured while creating a fanfic");
-    }
-
-    [Authorize]
-    [HttpPost("add-tags/{fanficId:long}")]
-    public async Task<IActionResult> AddTagsAsync(long fanficId, AddTagsDto addTagsDto)
-    {
-        var fanfic = await _service.GetByIdAsync(fanficId);
-        if (fanfic is null)
-        {
-            return NotFound($"Fanfic {fanficId} was not found!");
-        }
-
-        if (fanfic.Author.Id != User.GetUserId() && !User.IsInRole("Admin"))
-        {
-            return StatusCode(403, "You cannot add tags to the other user's fanfic!");
-        }
-
-        var added = await _service.AddTagsToFanficAsync(fanficId, addTagsDto);
-        return added
-            ? Ok("Tags are added!")
-            : BadRequest("An error occured while adding tags to the fanfic");
+        return createResult.IsSuccess
+            ? StatusCode(201, createResult.Result)
+            : BadRequest(createResult);
     }
 
     [HttpPatch("increment-views/{id:long}")]
@@ -114,6 +100,8 @@ public class FanficController : ControllerBase
 
     [Authorize]
     [HttpPut]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> EditFanficAsync(EditFanficDto editFanficDto)
     {
         var validationResult = await _editFanficValidator.ValidateAsync(editFanficDto);
@@ -122,36 +110,23 @@ public class FanficController : ControllerBase
             validationResult.AddToModelState(ModelState);
             return BadRequest(ModelState);
         }
-        
-        var fanfic = await _service.GetByIdAsync(editFanficDto.Id);
-        if (fanfic is null)
-        {
-            return NotFound();
-        }
 
-        var edited = await _service.EditAsync(editFanficDto);
-        return edited
+        var editResult = await _service.EditAsync(editFanficDto);
+        return editResult.IsSuccess
             ? NoContent()
-            : BadRequest();
+            : BadRequest(editResult);
     }
 
     [Authorize]
     [HttpDelete("{id:long}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteFanficAsync(long id)
     {
-        var fanfic = await _service.GetByIdAsync(id);
-        if (fanfic is null)
-        {
-            return NotFound($"Fanfic {id} was not found!");
-        }
-
-        if (fanfic.Author.Id != User.GetUserId() && !User.IsInRole("Admin"))
-        {
-            return StatusCode(403, "You cannot delete other user's fanfic!");
-        }
-
-        var deleted = await _service.DeleteAsync(id);
+        var deleteResult = await _service.DeleteAsync(id);
         
-        return deleted ? NoContent() : BadRequest("An error occured while deleting a fanfic");
+        return deleteResult.IsSuccess
+            ? NoContent()
+            : BadRequest(deleteResult);
     }
 }

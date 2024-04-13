@@ -4,5 +4,5 @@ namespace FanficsWorld.Services.Interfaces;
 
 public interface IFeedbackService
 {
-    Task<bool> SendFeedbackAsync(SendFeedbackDto request);
+    Task<ServiceResultDto> SendFeedbackAsync(SendFeedbackDto request);
 }

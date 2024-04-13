@@ -19,7 +19,7 @@ public class FeedbackService : IFeedbackService
         _sanitizer = sanitizer;
     }
 
-    public async Task<bool> SendFeedbackAsync(SendFeedbackDto request)
+    public async Task<ServiceResultDto> SendFeedbackAsync(SendFeedbackDto request)
     {
         var feedback = new Feedback
         {
@@ -28,6 +28,12 @@ public class FeedbackService : IFeedbackService
             Email = request.Email,
             Reviewed = false
         };
-        return await _repository.SendAsync(feedback);
+        var added = await _repository.SendAsync(feedback);
+
+        return new ServiceResultDto
+        {
+            IsSuccess = added,
+            ErrorMessage = added ? null : "Failed to add a feedback!"
+        };
     }
 }

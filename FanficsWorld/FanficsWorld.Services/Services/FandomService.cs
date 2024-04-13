@@ -30,10 +30,16 @@ public class FandomService : IFandomService
             .Select(fdom => _mapper.Map<SimpleFandomDto>(fdom))
             .ToListAsync();
 
-    public async Task<long?> CreateAsync(NewFandomDto newFandomDto)
+    public async Task<ServiceResultDto<long?>> CreateAsync(NewFandomDto newFandomDto)
     {
         var fandom = _mapper.Map<Fandom>(newFandomDto);
-        return await _repository.CreateAsync(fandom);
+        var createdFandomId = await _repository.CreateAsync(fandom);
+        return new ServiceResultDto<long?>
+        {
+            IsSuccess = createdFandomId.HasValue,
+            Result = createdFandomId,
+            ErrorMessage = createdFandomId.HasValue ? null : "Cannot create a fandom!"
+        };
     }
 
     public async Task<FandomDto?> GetFandomWithFanficsAsync(long id)

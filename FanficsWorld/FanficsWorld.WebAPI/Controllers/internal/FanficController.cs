@@ -1,3 +1,4 @@
+using FanficsWorld.Common.DTO;
 using FanficsWorld.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,8 @@ public class FanficController : ControllerBase
     }
 
     [HttpGet("{id:long}")]
+    [ProducesResponseType(typeof(FanficDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync(long id)
     {
         var fanfic = await _service.GetByIdAsync(id);

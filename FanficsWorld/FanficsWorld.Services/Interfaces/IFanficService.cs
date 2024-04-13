@@ -7,12 +7,11 @@ public interface IFanficService
 {
     Task<FanficDto?> GetByIdAsync(long id);
     Task<FanficPageDto?> GetDisplayFanficByIdAsync(long id);
-    Task<long?> CreateAsync(NewFanficDto newFanficDto, string userId);
-    Task<bool> DeleteAsync(long id);
-    Task<bool> AddTagsToFanficAsync(long fanficId, AddTagsDto addTagsDto);
+    Task<ServiceResultDto<long?>> CreateAsync(NewFanficDto newFanficDto, string? userId);
+    Task<ServiceResultDto> DeleteAsync(long fanficId);
     Task<ulong?> IncrementFanficViewsCounterAsync(long fanficId);
     Task<ServicePagedResultDto<SimpleFanficDto>> GetPageWithFanficsAsync(int page, int itemsPerPage);
     Task<ServicePagedResultDto<SimpleFanficDto>> SearchFanficsAsync(SearchFanficsDto searchFanficsDto);
     Task SetFanficStatusAsync(long id, FanficStatus fanficStatus);
-    Task<bool> EditAsync(EditFanficDto editFanficDto);
+    Task<ServiceResultDto> EditAsync(EditFanficDto editFanficDto);
 }
