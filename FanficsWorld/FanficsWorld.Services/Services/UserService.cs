@@ -90,6 +90,86 @@ public class UserService : IUserService
         return _mapper.Map<List<SimpleUserDto>>(users);
     }
 
+    public async Task<ServicePagedResultDto<AdminPanelUserDto>> GetUsersAdminPageAsync(int page, int itemsPerPage)
+    {
+        if (page <= 0 || itemsPerPage <= 0)
+        {
+            return new ServicePagedResultDto<AdminPanelUserDto>();
+        }
+
+        var totalUsersCount = await _repository.CountAsync();
+        var users = await _repository.GetPageAsync(page, itemsPerPage);
+        var userDtoList = users.Select(u => new AdminPanelUserDto
+            {
+                Id = u.Id,
+                Email = u.Email ?? string.Empty,
+                UserName = u.UserName ?? string.Empty,
+                RegistrationDate = u.RegistrationDate,
+                DateOfBirth = u.DateOfBirth,
+                FanficsCount = u.Fanfics.Count,
+                CoauthoredFanficsCount = u.CoauthoredFanfics.Count
+            })
+            .ToList();
+
+        return new ServicePagedResultDto<AdminPanelUserDto>
+        {
+            PageContent = userDtoList,
+            ItemsPerPage = itemsPerPage,
+            CurrentPage = page,
+            TotalItems = totalUsersCount,
+            PagesCount = Convert.ToInt32(Math.Ceiling(totalUsersCount / (float)itemsPerPage))
+        };
+    }
+
+    public async Task<ServiceResultDto> DeleteUserAsync(string id)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            _logger.LogWarning("Cannot recognize a user ID.");
+            
+            return new ServiceResultDto
+            {
+                IsSuccess = false,
+                ErrorMessage = $"User ID was not specified!"
+            };
+        }
+        
+        var user = await _repository.GetAsync(id);
+        if (user is null)
+        {
+            _logger.LogWarning("Cannot delete a user {UserId}. It was not found.", id);
+            
+            return new ServiceResultDto
+            {
+                IsSuccess = false,
+                ErrorMessage = $"User {id} does not exist!"
+            };
+        }
+
+        if (IsRootAdmin(user))
+        {
+            _logger.LogWarning("It is forbidden to delete an admin user account.");
+            return new ServiceResultDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "It is forbidden to delete an admin user account!"
+            };
+        }
+
+        var deleted = await _repository.DeleteAsync(user);
+        return new ServiceResultDto
+        {
+            IsSuccess = deleted,
+            ErrorMessage = deleted ? null : "Failed to delete a user!"
+        };
+    }
+
+    private bool IsRootAdmin(User user)
+    {
+        return user.UserName == _configuration["AdminSettings:UserName"]
+            && user.Email == _configuration["AdminSettings:Email"];
+    }
+
     private async Task<string> GenerateTokenAsync(User user)
     {
         var jwtConfig = _configuration.GetSection("JwtConfig");

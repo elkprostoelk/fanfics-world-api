@@ -4,20 +4,24 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 
 namespace FanficsWorld.DataAccess.Repositories;
 
 public class UserRepository : IUserRepository
 {
+    private readonly FanficsDbContext _context;
     private readonly UserManager<User> _userManager;
     private readonly ILogger<UserRepository> _logger;
     private readonly IMemoryCache _cache;
 
     public UserRepository(
+        FanficsDbContext context,
         UserManager<User> userManager,
         ILogger<UserRepository> logger,
         IMemoryCache cache)
     {
+        _context = context;
         _userManager = userManager;
         _logger = logger;
         _cache = cache;
@@ -40,14 +44,33 @@ public class UserRepository : IUserRepository
         return result;
     }
 
-    public async Task<User?> GetAsync(string idOrUserName)
+    public async Task<User?> GetAsync(string idOrUserName, bool asNoTracking = true)
     {
-        if (Guid.TryParse(idOrUserName, out var id))
+        var usersQuery = _userManager.Users
+            .Include(u => u.FanficCoauthors)
+            .Include(u => u.Fanfics)
+            .Include(u => u.CoauthoredFanfics)
+            .Include(u => u.FanficComments)
+            .Include(u => u.FanficCommentReactions)
+            .AsQueryable();
+
+        if (asNoTracking)
         {
-            return await _userManager.FindByIdAsync(id.ToString());
+            usersQuery = usersQuery.AsNoTracking().AsQueryable();
         }
 
-        return await _userManager.FindByNameAsync(idOrUserName);
+        Expression<Func<User, bool>> searchExpression;
+
+        if (Guid.TryParse(idOrUserName, out var id))
+        {
+            searchExpression = u => u.Id == id.ToString();
+        }
+        else
+        {
+            searchExpression = u => u.UserName != null && u.UserName.Contains(idOrUserName);
+        }
+
+        return await usersQuery.FirstOrDefaultAsync(searchExpression);
     }
 
     public async Task<List<User>> GetRangeAsync(List<string> userIds) =>
@@ -55,7 +78,7 @@ public class UserRepository : IUserRepository
             .Where(u => userIds.Contains(u.Id))
             .ToListAsync();
 
-    public async Task<List<User>> GetListAsync(string? userName)
+    public async Task<List<User>> GetListAsync(string? userName = null)
     {
         var cacheKey = "simple_users";
         var isSearchByName = !string.IsNullOrWhiteSpace(userName);
@@ -115,5 +138,35 @@ public class UserRepository : IUserRepository
     {
         var users = await _userManager.GetRolesAsync(user);
         return users.ToList();
+    }
+
+    public async Task<List<User>> GetPageAsync(int page, int itemsPerPage) =>
+        await _userManager.Users
+            .AsNoTracking()
+            .Include(u => u.Fanfics)
+            .Include(u => u.CoauthoredFanfics)
+            .Skip((page - 1) * itemsPerPage)
+            .Take(itemsPerPage)
+            .ToListAsync();
+
+    public async Task<bool> DeleteAsync(User user)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            _context.FanficCommentReactions.RemoveRange(user.FanficCommentReactions);
+            _context.FanficComments.RemoveRange(user.FanficComments);
+            _context.FanficCoauthors.RemoveRange(user.FanficCoauthors);
+            _context.Fanfics.RemoveRange(user.Fanfics);
+            var deleteResult = await _userManager.DeleteAsync(user);
+            await transaction.CommitAsync();
+            return deleteResult.Succeeded;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "A DB error occured when deleting a user.");
+            await transaction.RollbackAsync();
+            return false;
+        }
     }
 }

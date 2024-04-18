@@ -25,9 +25,16 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(List<SimpleUserDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUsersAsync(string? userName = null) =>
         Ok(await _service.GetSimpleUsersAsync(User.GetUserId()!, userName));
+
+    [HttpGet("admin-page")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ServicePagedResultDto<AdminPanelUserDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetUsersForAdminPageAsync(int page = 1, int itemsPerPage = 20) =>
+        Ok(await _service.GetUsersAdminPageAsync(page, itemsPerPage));
     
     [HttpPatch("change-password/{userId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -52,5 +59,17 @@ public class UserController : ControllerBase
         return changeResult.IsSuccess
             ? NoContent()
             : BadRequest("Error while changing a password!");
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ServiceResultDto), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteUserAsync(string id)
+    {
+        var deleteResult = await _service.DeleteUserAsync(id);
+        return deleteResult.IsSuccess
+            ? NoContent()
+            : BadRequest(deleteResult);
     }
 }

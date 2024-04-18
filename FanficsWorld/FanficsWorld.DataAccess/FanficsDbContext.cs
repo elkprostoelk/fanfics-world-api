@@ -11,6 +11,8 @@ public class FanficsDbContext : IdentityDbContext<User>
     {
     }
 
+    public DbSet<FanficCoauthor> FanficCoauthors { get; set; }
+
     public DbSet<Fanfic> Fanfics { get; set; }
     
     public DbSet<Fandom> Fandoms { get; set; }

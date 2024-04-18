@@ -11,4 +11,6 @@ public interface IUserService
     Task<ServiceResultDto> ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto);
     Task<List<SimpleUserDto>> GetSimpleUsersAsync(string userId,
         string? userName = null);
+    Task<ServicePagedResultDto<AdminPanelUserDto>> GetUsersAdminPageAsync(int page, int itemsPerPage);
+    Task<ServiceResultDto> DeleteUserAsync(string id);
 }
