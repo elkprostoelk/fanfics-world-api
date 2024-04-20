@@ -33,8 +33,6 @@ public class UserServiceTests
         
         _userRepositoryMock.Setup(r => r.GetListAsync(It.IsAny<string>()))
             .ReturnsAsync(users);
-        _userRepositoryMock.Setup(r => r.CountAsync(It.IsAny<string>()))
-            .ReturnsAsync(itemsCount);
         
         // Act
 

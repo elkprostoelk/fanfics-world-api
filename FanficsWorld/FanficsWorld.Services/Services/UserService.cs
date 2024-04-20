@@ -7,6 +7,7 @@ using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -90,16 +91,29 @@ public class UserService : IUserService
         return _mapper.Map<List<SimpleUserDto>>(users);
     }
 
-    public async Task<ServicePagedResultDto<AdminPanelUserDto>> GetUsersAdminPageAsync(int page, int itemsPerPage)
+    public async Task<ServicePagedResultDto<AdminPanelUserDto>> GetUsersAdminPageAsync(
+        string? searchTerm,
+        int page,
+        int itemsPerPage)
     {
         if (page <= 0 || itemsPerPage <= 0)
         {
             return new ServicePagedResultDto<AdminPanelUserDto>();
         }
 
-        var totalUsersCount = await _repository.CountAsync();
-        var users = await _repository.GetPageAsync(page, itemsPerPage);
-        var userDtoList = users.Select(u => new AdminPanelUserDto
+        var usersQuery = _repository.GetAll();
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            usersQuery = usersQuery.Where(u => u.Id == searchTerm
+                                               || (u.UserName != null && u.UserName.Contains(searchTerm))
+                                               || (u.Email != null && u.Email.Contains(searchTerm)));
+        }
+
+        var totalUsersCount = await usersQuery.CountAsync();
+        var userDtoList = await usersQuery
+            .Skip((page - 1) * itemsPerPage)
+            .Take(itemsPerPage)
+            .Select(u => new AdminPanelUserDto
             {
                 Id = u.Id,
                 Email = u.Email ?? string.Empty,
@@ -109,7 +123,7 @@ public class UserService : IUserService
                 FanficsCount = u.Fanfics.Count,
                 CoauthoredFanficsCount = u.CoauthoredFanfics.Count
             })
-            .ToList();
+            .ToListAsync();
 
         return new ServicePagedResultDto<AdminPanelUserDto>
         {

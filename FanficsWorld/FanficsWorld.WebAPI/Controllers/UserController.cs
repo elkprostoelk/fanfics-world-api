@@ -33,8 +33,8 @@ public class UserController : ControllerBase
     [HttpGet("admin-page")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ServicePagedResultDto<AdminPanelUserDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUsersForAdminPageAsync(int page = 1, int itemsPerPage = 20) =>
-        Ok(await _service.GetUsersAdminPageAsync(page, itemsPerPage));
+    public async Task<IActionResult> GetUsersForAdminPageAsync(string? searchTerm = null, int page = 1, int itemsPerPage = 20) =>
+        Ok(await _service.GetUsersAdminPageAsync(searchTerm, page, itemsPerPage));
     
     [HttpPatch("change-password/{userId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

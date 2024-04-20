@@ -108,18 +108,6 @@ public class UserRepository : IUserRepository
         return users;
     }
 
-    public async Task<long> CountAsync(string? currentUserId = null)
-    {
-        var usersQuery = _userManager.Users;
-        if (!string.IsNullOrWhiteSpace(currentUserId))
-        {
-            usersQuery = usersQuery.Where(u => u.Id != currentUserId);
-        }
-        
-        return await usersQuery
-            .LongCountAsync();
-    }
-
     public async Task<bool> CheckPasswordAsync(User user, string password) =>
         await _userManager.CheckPasswordAsync(user, password);
 
@@ -139,15 +127,6 @@ public class UserRepository : IUserRepository
         var users = await _userManager.GetRolesAsync(user);
         return users.ToList();
     }
-
-    public async Task<List<User>> GetPageAsync(int page, int itemsPerPage) =>
-        await _userManager.Users
-            .AsNoTracking()
-            .Include(u => u.Fanfics)
-            .Include(u => u.CoauthoredFanfics)
-            .Skip((page - 1) * itemsPerPage)
-            .Take(itemsPerPage)
-            .ToListAsync();
 
     public async Task<bool> DeleteAsync(User user)
     {
@@ -169,4 +148,9 @@ public class UserRepository : IUserRepository
             return false;
         }
     }
+
+    public IQueryable<User> GetAll() => _userManager.Users
+        .AsNoTracking()
+        .Include(u => u.Fanfics)
+        .Include(u => u.CoauthoredFanfics);
 }
