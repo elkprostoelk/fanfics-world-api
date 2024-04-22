@@ -28,4 +28,4 @@ jobs:
       run: dotnet build FanficsWorld.sln --no-restore
     - name: Test
       working-directory: FanficsWorld
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test FanficsWorld.sln --no-build --verbosity normal
