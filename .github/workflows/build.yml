@@ -22,7 +22,7 @@ jobs:
         dotnet-version: 8.0.x
     - name: Restore dependencies
       working-directory: FanficsWorld
-      run: dotnet restore
+      run: dotnet restore FanficsWorld.sln
     - name: Build
       working-directory: FanficsWorld
       run: dotnet build --no-restore
