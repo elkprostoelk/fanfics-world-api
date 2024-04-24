@@ -31,16 +31,18 @@ public class UserRepository : IUserRepository
     {
         var result = await _userManager.CreateAsync(user, password);
 
-        if (result.Succeeded)
+        if (!result.Succeeded)
         {
-            var roleAddingResult = await _userManager.AddToRoleAsync(user, role);
-            if (!roleAddingResult.Succeeded)
-            {
-                _logger.LogError("Error(s) occured while adding user {UserId} to role {Role}: {ErrorsList}", 
-                    user.Id, role, string.Join(", ", result.Errors.Select(err => $"{err.Code}: {err.Description}")));
-            }
+            return result;
         }
         
+        var roleAddingResult = await _userManager.AddToRoleAsync(user, role);
+        if (!roleAddingResult.Succeeded)
+        {
+            _logger.LogError("Error(s) occured while adding user {UserId} to role {Role}: {ErrorsList}", 
+                user.Id, role, string.Join(", ", result.Errors.Select(err => $"{err.Code}: {err.Description}")));
+        }
+
         return result;
     }
 
@@ -67,7 +69,7 @@ public class UserRepository : IUserRepository
         }
         else
         {
-            searchExpression = u => u.UserName != null && u.UserName.Contains(idOrUserName);
+            searchExpression = u => u.UserName != null && u.UserName.Equals(idOrUserName);
         }
 
         return await usersQuery.FirstOrDefaultAsync(searchExpression);
@@ -75,37 +77,24 @@ public class UserRepository : IUserRepository
 
     public async Task<List<User>> GetRangeAsync(List<string> userIds) =>
         await _userManager.Users
-            .Where(u => userIds.Contains(u.Id))
+            .Where(u => !u.IsBlocked && userIds.Contains(u.Id))
             .ToListAsync();
 
     public async Task<List<User>> GetListAsync(string? userName = null)
     {
-        var cacheKey = "simple_users";
         var isSearchByName = !string.IsNullOrWhiteSpace(userName);
-        if (isSearchByName)
-        {
-            cacheKey = string.Concat(cacheKey, $"_userSearch_{userName}");
-        }
-        
-        var isListCached = _cache.TryGetValue(cacheKey, out List<User>? users);
-        if (isListCached)
-        {
-            return users ?? [];
-        }
-
-        var usersQuery = _userManager.Users.AsNoTracking();
+        var usersQuery = _userManager.Users
+            .AsNoTracking()
+            .Where(u => !u.IsBlocked);
         
         if (isSearchByName)
         {
             usersQuery = usersQuery.Where(u =>
                 u.UserName!.Contains(userName!));
         }
-        users = await usersQuery
+        return await usersQuery
             .OrderBy(u => u.UserName)
             .ToListAsync();
-            
-        _cache.Set(cacheKey, users, TimeSpan.FromHours(1));
-        return users;
     }
 
     public async Task<bool> CheckPasswordAsync(User user, string password) =>
@@ -127,6 +116,9 @@ public class UserRepository : IUserRepository
         var users = await _userManager.GetRolesAsync(user);
         return users.ToList();
     }
+
+    public async Task<IdentityResult> UpdateAsync(User user) =>
+        await _userManager.UpdateAsync(user);
 
     public async Task<bool> DeleteAsync(User user)
     {

@@ -25,9 +25,8 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     [ProducesResponseType(typeof(UserTokenDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ServiceResultDto<UserTokenDto>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Login(LoginUserDto loginUserDto)
     {
         var validationResult = await _loginValidator.ValidateAsync(loginUserDto);
@@ -36,17 +35,11 @@ public class AuthController : ControllerBase
             validationResult.AddToModelState(ModelState);
             return BadRequest(ModelState);
         }
-
-        var userExists = await _userService.UserExistsAsync(loginUserDto.Login);
-        if (!userExists)
-        {
-            return NotFound($"User {loginUserDto.Login} was not found!");
-        }
         
-        var validatedUserTokenDto = await _userService.ValidateUserAsync(loginUserDto);
-        return validatedUserTokenDto is not null
-            ? Ok(validatedUserTokenDto)
-            : Unauthorized("Password is invalid!");
+        var loginResult = await _userService.ValidateUserAsync(loginUserDto);
+        return loginResult.IsSuccess
+            ? Ok(loginResult.Result)
+            : Unauthorized(loginResult);
     }
 
     [HttpPost("register")]

@@ -6,7 +6,7 @@ namespace FanficsWorld.Services.Interfaces;
 public interface IUserService
 {
     Task<IdentityResult> RegisterUserAsync(RegisterUserDto registerUserDto);
-    Task<UserTokenDto?> ValidateUserAsync(LoginUserDto loginUserDto);
+    Task<ServiceResultDto<UserTokenDto>> ValidateUserAsync(LoginUserDto loginUserDto);
     Task<bool> UserExistsAsync(string idOrUserName);
     Task<ServiceResultDto> ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto);
     Task<List<SimpleUserDto>> GetSimpleUsersAsync(string userId,
@@ -14,4 +14,5 @@ public interface IUserService
     Task<ServicePagedResultDto<AdminPanelUserDto>> GetUsersAdminPageAsync(string? searchTerm, int page,
         int itemsPerPage);
     Task<ServiceResultDto> DeleteUserAsync(string id);
+    Task<ServiceResultDto> ChangeBlockStatusAsync(string id);
 }

@@ -10,6 +10,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Ignore(u => u.PhoneNumberConfirmed)
             .Ignore(u => u.TwoFactorEnabled);
 
+        builder.Property(u => u.IsBlocked)
+            .IsRequired()
+            .HasDefaultValue(false);
+        
         builder.Property(u => u.DateOfBirth)
             .IsRequired();
 

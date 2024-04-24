@@ -13,6 +13,7 @@ public interface IUserRepository
     Task<bool> UserExistsAsync(string idOrUserName);
     Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword);
     Task<List<string>> GetRolesAsync(User user);
+    Task<IdentityResult> UpdateAsync(User user);
     Task<bool> DeleteAsync(User user);
     IQueryable<User> GetAll();
 }

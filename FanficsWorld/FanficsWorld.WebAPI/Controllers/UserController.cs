@@ -61,6 +61,18 @@ public class UserController : ControllerBase
             : BadRequest("Error while changing a password!");
     }
 
+    [HttpPatch("block-status/{id}")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ServiceResultDto), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ChangeBlockStatus(string id)
+    {
+        var blockResult = await _service.ChangeBlockStatusAsync(id);
+        return blockResult.IsSuccess
+            ? NoContent()
+            : BadRequest(blockResult);
+    }
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

@@ -15,4 +15,6 @@ public class AdminPanelUserDto
     public int FanficsCount { get; set; }
     
     public int CoauthoredFanficsCount { get; set; }
+    
+    public bool IsBlocked { get; set; }
 }
