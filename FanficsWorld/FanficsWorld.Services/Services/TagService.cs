@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FanficsWorld.Common.DTO;
+using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -18,18 +19,27 @@ public class TagService : ITagService
         _mapper = mapper;
     }
 
-    public async Task<List<TagDto>?> GetAllAsync(string? title = null)
+    public async Task<List<TagDto>> GetAllAsync(string? title = null)
     {
-        var tagsReq = _repository.GetAll();
-        if (!string.IsNullOrWhiteSpace(title))
-        {
-            tagsReq = tagsReq.Where(tag => tag.Name.Contains(title));
-        }
+        var tagsQuery = ApplyNameFilter(title);
 
-        return await tagsReq.Select(tag => _mapper.Map<TagDto>(tag)).ToListAsync();
+        return await tagsQuery
+            .Select(tag => _mapper.Map<TagDto>(tag))
+            .ToListAsync();
     }
 
-    public async Task<List<TagDto>?> GetTop10Async()
+    private IQueryable<Tag> ApplyNameFilter(string? name)
+    {
+        var tagsQuery = _repository.GetAll();
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            tagsQuery = tagsQuery.Where(tag => tag.Name.Contains(name));
+        }
+
+        return tagsQuery;
+    }
+
+    public async Task<List<TagDto>> GetTop10Async()
     {
         var tags = await _repository.GetTop10Async();
         return _mapper.Map<List<TagDto>>(tags);
@@ -43,5 +53,27 @@ public class TagService : ITagService
     {
         var tag = await _repository.GetAsync(id);
         return _mapper.Map<TagWithFanficsDto>(tag);
+    }
+
+    public async Task<ServicePagedResultDto<AdminPageTagDto>> GetAllAsync(string? searchByName, int page, int itemsPerPage)
+    {
+        var tagsQuery = ApplyNameFilter(searchByName);
+        var totalItemsCount = await tagsQuery.CountAsync();
+        var tags = await tagsQuery
+            .Select(t => new AdminPageTagDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                FanficsCount = t.Fanfics.Count
+            }).ToListAsync();
+
+        return new ServicePagedResultDto<AdminPageTagDto>
+        {
+            CurrentPage = page,
+            ItemsPerPage = itemsPerPage,
+            PageContent = tags,
+            TotalItems = totalItemsCount,
+            PagesCount = Convert.ToInt32(Math.Ceiling(totalItemsCount / (float)itemsPerPage))
+        };
     }
 }

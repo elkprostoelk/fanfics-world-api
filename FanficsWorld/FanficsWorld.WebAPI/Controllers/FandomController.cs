@@ -23,7 +23,7 @@ public class FandomController : ControllerBase
 
     [HttpGet("top10")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTop10FandomsAsync() => 
+    public async Task<IActionResult> GetTop10Fandoms() => 
         Ok(await _service.GetTop10FandomsAsync());
 
     [Authorize(Roles = "Admin")]
@@ -34,14 +34,14 @@ public class FandomController : ControllerBase
 
     [HttpGet("search")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetFandomsByTitleAsync([FromQuery]string title) =>
+    public async Task<IActionResult> GetFandomsByTitle([FromQuery]string title) =>
         Ok(await _service.SearchByTitleAsync(title));
 
     [Authorize(Roles = "Admin")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateFandomAsync(NewFandomDto newFandomDto)
+    public async Task<IActionResult> CreateFandom(NewFandomDto newFandomDto)
     {
         var validationResult = await _newFandomValidator.ValidateAsync(newFandomDto);
         if (!validationResult.IsValid)
@@ -60,7 +60,7 @@ public class FandomController : ControllerBase
     [HttpGet("{id:long}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetFandomAndFanficsAsync(long id)
+    public async Task<IActionResult> GetFandomAndFanfics(long id)
     {
         var fandom = await _service.GetFandomWithFanficsAsync(id);
         if (fandom is null)
@@ -75,7 +75,7 @@ public class FandomController : ControllerBase
     [HttpDelete("{id:long}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ServiceResultDto), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> DeleteFandomAsync(long id)
+    public async Task<IActionResult> DeleteFandom(long id)
     {
         var deleteResult = await _service.DeleteAsync(id);
         return deleteResult.IsSuccess

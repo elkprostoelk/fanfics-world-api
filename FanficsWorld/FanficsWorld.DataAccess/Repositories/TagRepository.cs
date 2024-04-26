@@ -14,7 +14,9 @@ public class TagRepository : ITagRepository
     }
 
     public IQueryable<Tag> GetAll() =>
-        _context.Tags.AsNoTracking();
+        _context.Tags
+            .AsNoTracking()
+            .Include(t => t.Fanfics);
 
     public async Task<List<Tag>> GetTop10Async() =>
         await _context.Tags

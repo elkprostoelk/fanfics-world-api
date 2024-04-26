@@ -27,7 +27,7 @@ namespace FanficsWorld.WebAPI.Controllers
         [AllowAnonymous]
         [HttpGet("all/{fanficId:long}")]
         [ProducesResponseType(typeof(List<FanficCommentDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetFanficCommentsAsync(long fanficId)
+        public async Task<IActionResult> GetFanficComments(long fanficId)
         {
             var fanficComments = await _service.GetFanficCommentsAsync(fanficId, User.GetUserId());
             return Ok(fanficComments);
@@ -36,7 +36,7 @@ namespace FanficsWorld.WebAPI.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> SendFanficCommentAsync(SentFanficCommentDto sentFanficCommentDto)
+        public async Task<IActionResult> SendFanficComment(SentFanficCommentDto sentFanficCommentDto)
         {
             var validationResult = await _sentFanficCommentValidator.ValidateAsync(sentFanficCommentDto);
             if (!validationResult.IsValid)
@@ -54,7 +54,7 @@ namespace FanficsWorld.WebAPI.Controllers
         [HttpPost("{commentId:long}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> SetFanficCommentReactionAsync(long commentId, [FromQuery] bool? userLiked)
+        public async Task<IActionResult> SetFanficCommentReaction(long commentId, [FromQuery] bool? userLiked)
         {
             var fanficCommentReactionResult = await _service.SetFanficCommentReactionAsync(commentId, userLiked, User.GetUserId());
 
@@ -66,7 +66,7 @@ namespace FanficsWorld.WebAPI.Controllers
         [HttpDelete("{commentId:long}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteCommentAsync(long commentId)
+        public async Task<IActionResult> DeleteComment(long commentId)
         {
             var deletingResult = await _service.DeleteCommentAsync(commentId);
 

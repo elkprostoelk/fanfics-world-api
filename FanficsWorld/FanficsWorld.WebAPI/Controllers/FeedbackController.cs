@@ -18,7 +18,7 @@ namespace FanficsWorld.WebAPI.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> SendFeedbackAsync(SendFeedbackDto request)
+        public async Task<IActionResult> SendFeedback(SendFeedbackDto request)
         {
             var sentResult = await _service.SendFeedbackAsync(request);
             return sentResult.IsSuccess

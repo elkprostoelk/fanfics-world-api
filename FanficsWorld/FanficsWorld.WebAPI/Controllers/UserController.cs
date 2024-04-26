@@ -27,13 +27,13 @@ public class UserController : ControllerBase
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<SimpleUserDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUsersAsync(string? userName = null) =>
+    public async Task<IActionResult> GetUsers(string? userName = null) =>
         Ok(await _service.GetSimpleUsersAsync(User.GetUserId()!, userName));
 
     [HttpGet("admin-page")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ServicePagedResultDto<AdminPanelUserDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUsersForAdminPageAsync(string? searchTerm = null, int page = 1, int itemsPerPage = 20) =>
+    public async Task<IActionResult> GetUsersForAdminPage(string? searchTerm = null, int page = 1, int itemsPerPage = 20) =>
         Ok(await _service.GetUsersAdminPageAsync(searchTerm, page, itemsPerPage));
     
     [HttpPatch("change-password/{userId}")]
@@ -77,7 +77,7 @@ public class UserController : ControllerBase
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ServiceResultDto), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> DeleteUserAsync(string id)
+    public async Task<IActionResult> DeleteUser(string id)
     {
         var deleteResult = await _service.DeleteUserAsync(id);
         return deleteResult.IsSuccess

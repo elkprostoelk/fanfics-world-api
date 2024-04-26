@@ -18,7 +18,7 @@ public class FanficController : ControllerBase
     [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(FanficDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByIdAsync(long id)
+    public async Task<IActionResult> GetById(long id)
     {
         var fanfic = await _service.GetByIdAsync(id);
         if (fanfic is null)
