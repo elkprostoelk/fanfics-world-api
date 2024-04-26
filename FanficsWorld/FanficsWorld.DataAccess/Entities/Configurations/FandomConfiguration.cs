@@ -12,5 +12,9 @@ public class FandomConfiguration : IEntityTypeConfiguration<Fandom>
         builder.Property(f => f.Title)
             .IsRequired()
             .HasMaxLength(100);
+
+        builder.Property(f => f.IsDeleted)
+            .IsRequired()
+            .HasDefaultValue(false);
     }
 }

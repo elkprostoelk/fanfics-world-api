@@ -4,18 +4,23 @@ using FanficsWorld.DataAccess.Entities;
 using FanficsWorld.DataAccess.Interfaces;
 using FanficsWorld.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.Services.Services;
 
 public class FandomService : IFandomService
 {
     private readonly IFandomRepository _repository;
+    private readonly ILogger<FandomService> _logger;
     private readonly IMapper _mapper;
 
-    public FandomService(IFandomRepository repository,
+    public FandomService(
+        IFandomRepository repository,
+        ILogger<FandomService> logger,
         IMapper mapper)
     {
         _repository = repository;
+        _logger = logger;
         _mapper = mapper;
     }
 
@@ -64,7 +69,8 @@ public class FandomService : IFandomService
             {
                 Id = f.Id,
                 Title = f.Title,
-                FanficsCount = f.Fanfics.Count
+                FanficsCount = f.Fanfics.Count,
+                IsDeleted = f.IsDeleted
             })
             .ToListAsync();
 
@@ -75,6 +81,28 @@ public class FandomService : IFandomService
             CurrentPage = searchFandomsDto.Page,
             PagesCount = Convert.ToInt32(Math.Ceiling(fandomsCount / (float)searchFandomsDto.ItemsPerPage)),
             ItemsPerPage = searchFandomsDto.ItemsPerPage
+        };
+    }
+
+    public async Task<ServiceResultDto> DeleteAsync(long id)
+    {
+        var fandom = await _repository.GetAsync(id);
+        if (fandom is null)
+        {
+            _logger.LogWarning("Cannot delete the fandom {Id}. It does not exist.", id);
+            
+            return new ServiceResultDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "The fandom does not exist!"
+            };
+        }
+
+        var deleted = await _repository.DeleteAsync(fandom);
+        return new ServiceResultDto
+        {
+            IsSuccess = deleted,
+            ErrorMessage = "Failed to delete this fanfic!"
         };
     }
 }

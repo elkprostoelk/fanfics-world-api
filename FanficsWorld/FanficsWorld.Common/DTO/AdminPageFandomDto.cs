@@ -7,4 +7,6 @@ public class AdminPageFandomDto
     public string Title { get; set; }
     
     public int FanficsCount { get; set; }
+    
+    public bool IsDeleted { get; set; }
 }

@@ -11,4 +11,5 @@ public interface IFandomRepository
     Task<Fandom?> GetAsync(long id);
     Task<bool> ContainsAllAsync(List<long> ids, CancellationToken token);
     IQueryable<Fandom> GetAll();
+    Task<bool> DeleteAsync(Fandom fandom);
 }

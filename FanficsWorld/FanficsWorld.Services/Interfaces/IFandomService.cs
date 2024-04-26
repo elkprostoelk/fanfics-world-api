@@ -9,4 +9,5 @@ public interface IFandomService
     Task<ServiceResultDto<long?>> CreateAsync(NewFandomDto newFandomDto);
     Task<FandomDto?> GetFandomWithFanficsAsync(long id);
     Task<ServicePagedResultDto<AdminPageFandomDto>> GetForAdminPageAsync(SearchFandomsDto searchFandomsDto);
+    Task<ServiceResultDto> DeleteAsync(long id);
 }

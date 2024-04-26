@@ -123,10 +123,10 @@ public class FanficService : IFanficService
 
     public async Task<ServicePagedResultDto<SimpleFanficDto>> GetPageWithFanficsAsync(int page, int itemsPerPage)
     {
-        var fanfics = await _repository.GetAllPaged(page, itemsPerPage)
-            .ToListAsync();
+        var fanficsQuery = _repository.GetAllPaged(page, itemsPerPage);
+        var fanfics = await fanficsQuery.ToListAsync();
         var fanficDtos = _mapper.Map<List<SimpleFanficDto>>(fanfics);
-        var totalItems = await _repository.CountAsync();
+        var totalItems = await fanficsQuery.CountAsync();
         var pagesCount = Convert.ToInt32(Math.Ceiling(totalItems / (double)itemsPerPage));
         return new ServicePagedResultDto<SimpleFanficDto>
         {

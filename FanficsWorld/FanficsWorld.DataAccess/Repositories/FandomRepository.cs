@@ -16,6 +16,7 @@ public class FandomRepository : IFandomRepository
     public async Task<List<Fandom>> GetTop10Async() =>
         await _context.Fandoms
             .Include(fdom => fdom.Fanfics)
+            .Where(f => !f.IsDeleted)
             .OrderByDescending(fdom => fdom.Fanfics.Count)
             .ThenBy(fdom => fdom.Title)
             .AsNoTracking()
@@ -25,12 +26,12 @@ public class FandomRepository : IFandomRepository
     public IQueryable<Fandom> GetFandoms(string title) =>
         _context.Fandoms
             .AsNoTracking()
-            .Where(fdom => fdom.Title.Contains(title))
+            .Where(fdom => !fdom.IsDeleted && fdom.Title.Contains(title))
             .Take(10);
 
     public async Task<List<Fandom>> GetRangeAsync(List<long> fandomIds) =>
         await _context.Fandoms
-            .Where(fdom => fandomIds.Contains(fdom.Id))
+            .Where(fdom => !fdom.IsDeleted && fandomIds.Contains(fdom.Id))
             .ToListAsync();
 
     public async Task<long?> CreateAsync(Fandom fandom)
@@ -42,6 +43,7 @@ public class FandomRepository : IFandomRepository
     public async Task<Fandom?> GetAsync(long id) =>
         await _context.Fandoms
             .Include(fdom => fdom.Fanfics)
+            .Include(fdom => fdom.FanficFandoms)
             .AsNoTracking()
             .FirstOrDefaultAsync(fdom => fdom.Id == id);
 
@@ -51,7 +53,7 @@ public class FandomRepository : IFandomRepository
         foreach (var id in ids)
         {
             containsAll = containsAll && await _context.Fandoms.AnyAsync(f =>
-                f.Id == id, token);
+                !f.IsDeleted && f.Id == id, token);
         }
 
         return containsAll;
@@ -62,4 +64,11 @@ public class FandomRepository : IFandomRepository
             .AsNoTracking()
             .Include(f => f.Fanfics)
             .AsQueryable();
+
+    public async Task<bool> DeleteAsync(Fandom fandom)
+    {
+        fandom.IsDeleted = true;
+        _context.Fandoms.Update(fandom);
+        return await _context.SaveChangesAsync() > 0;
+    }
 }

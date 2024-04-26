@@ -70,4 +70,16 @@ public class FandomController : ControllerBase
 
         return Ok(fandom);
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id:long}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ServiceResultDto), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteFandomAsync(long id)
+    {
+        var deleteResult = await _service.DeleteAsync(id);
+        return deleteResult.IsSuccess
+            ? NoContent()
+            : BadRequest(deleteResult);
+    }
 }

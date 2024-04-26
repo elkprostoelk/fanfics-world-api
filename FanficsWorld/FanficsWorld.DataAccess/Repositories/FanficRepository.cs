@@ -19,7 +19,7 @@ public class FanficRepository : IFanficRepository
             .Include(f => f.Author)
             .Include(f => f.Coauthors.Where(fc => !fc.IsBlocked))
             .Include(f => f.FanficCoauthors)
-            .Include(f => f.Fandoms)
+            .Include(f => f.Fandoms.All(f => !f.IsDeleted))
             .Include(f => f.FanficFandoms)
             .Include(f => f.Tags)
             .Include(f => f.FanficTags)
@@ -51,7 +51,7 @@ public class FanficRepository : IFanficRepository
             .Include(ffic => ffic.Coauthors.Where(c => !c.IsBlocked))
             .Include(ffic => ffic.Fandoms)
             .Include(ffic => ffic.Tags)
-            .Where(f => !f.Author!.IsBlocked);
+            .Where(f => !f.Author!.IsBlocked && f.Fandoms.All(fdom => !fdom.IsDeleted));
 
     public IQueryable<Fanfic> GetAllPaged(int pageNumber, int takeCount) =>
         _context.Fanfics
@@ -62,7 +62,7 @@ public class FanficRepository : IFanficRepository
             .Include(ffic => ffic.Coauthors.Where(c => !c.IsBlocked))
             .Include(ffic => ffic.Fandoms)
             .Include(ffic => ffic.Tags)
-            .Where(f => !f.Author!.IsBlocked);
+            .Where(f => !f.Author!.IsBlocked && f.Fandoms.All(fdom => !fdom.IsDeleted));
     
     public IQueryable<Fanfic> GetAllInProgress(int takeCount) =>
         _context.Fanfics.AsNoTracking()
