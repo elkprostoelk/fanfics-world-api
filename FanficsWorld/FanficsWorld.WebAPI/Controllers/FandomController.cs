@@ -26,6 +26,12 @@ public class FandomController : ControllerBase
     public async Task<IActionResult> GetTop10FandomsAsync() => 
         Ok(await _service.GetTop10FandomsAsync());
 
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    [ProducesResponseType(typeof(ServicePagedResultDto<AdminPageFandomDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetFandomsAdminPageList([FromQuery] SearchFandomsDto searchFandomsDto) =>
+        Ok(await _service.GetForAdminPageAsync(searchFandomsDto));
+
     [HttpGet("search")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFandomsByTitleAsync([FromQuery]string title) =>

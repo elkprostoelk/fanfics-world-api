@@ -47,4 +47,34 @@ public class FandomService : IFandomService
         var fandom = await _repository.GetAsync(id);
         return _mapper.Map<FandomDto?>(fandom);
     }
+
+    public async Task<ServicePagedResultDto<AdminPageFandomDto>> GetForAdminPageAsync(SearchFandomsDto searchFandomsDto)
+    {
+        var fandomsQuery = _repository.GetAll();
+        if (!string.IsNullOrEmpty(searchFandomsDto.SearchByName))
+        {
+            fandomsQuery = fandomsQuery.Where(f => f.Title.Contains(searchFandomsDto.SearchByName));
+        }
+
+        var fandomsCount = await fandomsQuery.CountAsync();
+        var fandoms = await fandomsQuery
+            .Skip((searchFandomsDto.Page - 1) * searchFandomsDto.ItemsPerPage)
+            .Take(searchFandomsDto.ItemsPerPage)
+            .Select(f => new AdminPageFandomDto
+            {
+                Id = f.Id,
+                Title = f.Title,
+                FanficsCount = f.Fanfics.Count
+            })
+            .ToListAsync();
+
+        return new ServicePagedResultDto<AdminPageFandomDto>
+        {
+            PageContent = fandoms,
+            TotalItems = fandomsCount,
+            CurrentPage = searchFandomsDto.Page,
+            PagesCount = Convert.ToInt32(Math.Ceiling(fandomsCount / (float)searchFandomsDto.ItemsPerPage)),
+            ItemsPerPage = searchFandomsDto.ItemsPerPage
+        };
+    }
 }

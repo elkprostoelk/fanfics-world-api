@@ -56,4 +56,10 @@ public class FandomRepository : IFandomRepository
 
         return containsAll;
     }
+
+    public IQueryable<Fandom> GetAll() =>
+        _context.Fandoms
+            .AsNoTracking()
+            .Include(f => f.Fanfics)
+            .AsQueryable();
 }
