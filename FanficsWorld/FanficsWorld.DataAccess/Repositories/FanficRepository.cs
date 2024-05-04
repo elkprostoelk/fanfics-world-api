@@ -19,11 +19,11 @@ public class FanficRepository : IFanficRepository
             .Include(f => f.Author)
             .Include(f => f.Coauthors.Where(fc => !fc.IsBlocked))
             .Include(f => f.FanficCoauthors)
-            .Include(f => f.Fandoms.All(f => !f.IsDeleted))
+            .Include(f => f.Fandoms.Where(f => !f.IsDeleted))
             .Include(f => f.FanficFandoms)
             .Include(f => f.Tags)
             .Include(f => f.FanficTags)
-            .FirstOrDefaultAsync(f => f.Id == id);
+            .FirstOrDefaultAsync(f => f.Id == id && f.Fandoms.Count > 0);
 
     public async Task<long?> AddAsync(Fanfic fanfic)
     {
@@ -49,20 +49,14 @@ public class FanficRepository : IFanficRepository
         _context.Fanfics.AsNoTracking()
             .Include(ffic => ffic.Author)
             .Include(ffic => ffic.Coauthors.Where(c => !c.IsBlocked))
-            .Include(ffic => ffic.Fandoms)
+            .Include(ffic => ffic.Fandoms.Where(c => !c.IsDeleted))
             .Include(ffic => ffic.Tags)
-            .Where(f => !f.Author!.IsBlocked && f.Fandoms.All(fdom => !fdom.IsDeleted));
+            .Where(f => !f.Author!.IsBlocked && f.Fandoms.Count > 0);
 
     public IQueryable<Fanfic> GetAllPaged(int pageNumber, int takeCount) =>
-        _context.Fanfics
-            .AsNoTracking()
+        GetAll()
             .Skip((pageNumber - 1) * takeCount)
-            .Take(takeCount)
-            .Include(ffic => ffic.Author)
-            .Include(ffic => ffic.Coauthors.Where(c => !c.IsBlocked))
-            .Include(ffic => ffic.Fandoms)
-            .Include(ffic => ffic.Tags)
-            .Where(f => !f.Author!.IsBlocked && f.Fandoms.All(fdom => !fdom.IsDeleted));
+            .Take(takeCount);
     
     public IQueryable<Fanfic> GetAllInProgress(int takeCount) =>
         _context.Fanfics.AsNoTracking()
