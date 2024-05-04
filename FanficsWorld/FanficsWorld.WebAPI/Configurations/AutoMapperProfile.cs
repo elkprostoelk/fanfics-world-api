@@ -65,6 +65,7 @@ public class AutoMapperProfile : Profile
         CreateMap<Fandom, SimpleFandomDto>();
         CreateMap<NewFandomDto, Fandom>();
 
+        CreateMap<NewTagDto, Tag>();
         CreateMap<Tag, TagDto>()
             .ReverseMap();
         CreateMap<Tag, TagWithFanficsDto>()

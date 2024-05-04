@@ -9,4 +9,5 @@ public interface ITagService
     Task<bool> ContainsAllAsync(List<long> ids, CancellationToken cancellationToken);
     Task<TagWithFanficsDto?> GetFullByIdAsync(long id);
     Task<ServicePagedResultDto<AdminPageTagDto>> GetAllAsync(string? searchByName, int page, int itemsPerPage);
+    Task<ServiceResultDto> CreateAsync(NewTagDto newTagDto);
 }

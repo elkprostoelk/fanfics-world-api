@@ -46,4 +46,10 @@ public class TagRepository : ITagRepository
         await _context.Tags.AsNoTracking()
             .Include(t => t.Fanfics)
             .FirstOrDefaultAsync(t => t.Id == id);
+
+    public async Task<bool> AddAsync(Tag tag)
+    {
+        await _context.Tags.AddAsync(tag);
+        return await _context.SaveChangesAsync() > 0;
+    }
 }

@@ -76,4 +76,16 @@ public class TagService : ITagService
             PagesCount = Convert.ToInt32(Math.Ceiling(totalItemsCount / (float)itemsPerPage))
         };
     }
+
+    public async Task<ServiceResultDto> CreateAsync(NewTagDto newTagDto)
+    {
+        var tag = _mapper.Map<Tag>(newTagDto);
+        var created = await _repository.AddAsync(tag);
+
+        return new ServiceResultDto
+        {
+            IsSuccess = created,
+            ErrorMessage = !created ? "Failed to create a tag!" : null
+        };
+    }
 }

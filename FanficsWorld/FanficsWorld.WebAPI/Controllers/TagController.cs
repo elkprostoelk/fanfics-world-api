@@ -1,5 +1,7 @@
 ﻿using FanficsWorld.Common.DTO;
 using FanficsWorld.Services.Interfaces;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +12,14 @@ namespace FanficsWorld.WebAPI.Controllers;
 public class TagController : ControllerBase
 {
     private readonly ITagService _service;
+    private readonly IValidator<NewTagDto> _newTagDtoValidator;
 
-    public TagController(ITagService service)
+    public TagController(
+        ITagService service,
+        IValidator<NewTagDto> newTagDtoValidator)
     {
         _service = service;
+        _newTagDtoValidator = newTagDtoValidator;
     }
 
     [Authorize(Roles = "Admin")]
@@ -43,5 +49,25 @@ public class TagController : ControllerBase
         }
 
         return Ok(tag);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ServiceResultDto), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateNewTag(NewTagDto newTagDto)
+    {
+        var validationResult = await _newTagDtoValidator.ValidateAsync(newTagDto);
+        if (!validationResult.IsValid)
+        {
+            validationResult.AddToModelState(ModelState);
+            return BadRequest(ModelState);
+        }
+
+        var creationResult = await _service.CreateAsync(newTagDto);
+
+        return creationResult.IsSuccess
+            ? StatusCode(201)
+            : BadRequest(creationResult);
     }
 }

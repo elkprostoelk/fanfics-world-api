@@ -9,4 +9,5 @@ public interface ITagRepository
     Task<List<Tag>> GetRangeAsync(List<long> tagIds);
     Task<bool> ContainsAllAsync(List<long> ids, CancellationToken cancellationToken);
     Task<Tag?> GetAsync(long id);
+    Task<bool> AddAsync(Tag tag);
 }
