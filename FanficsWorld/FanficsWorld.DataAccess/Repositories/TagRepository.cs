@@ -22,6 +22,7 @@ public class TagRepository : ITagRepository
         await _context.Tags
             .Include(t => t.Fanfics)
             .AsNoTracking()
+            .Where(t => !t.IsDeleted)
             .OrderByDescending(t => t.Fanfics.Count)
             .Take(10).ToListAsync();
 
@@ -35,8 +36,12 @@ public class TagRepository : ITagRepository
         var containsAll = true;
         foreach (var id in ids)
         {
-            containsAll = containsAll && await _context.Tags.AnyAsync(tag =>
-                tag.Id == id, cancellationToken);
+            containsAll = containsAll 
+                          && await _context
+                              .Tags
+                              .AnyAsync(
+                                  tag => !tag.IsDeleted && tag.Id == id,
+                                  cancellationToken);
         }
 
         return containsAll;
@@ -50,6 +55,13 @@ public class TagRepository : ITagRepository
     public async Task<bool> AddAsync(Tag tag)
     {
         await _context.Tags.AddAsync(tag);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> DeleteAsync(Tag tag)
+    {
+        tag.IsDeleted = true;
+        _context.Tags.Update(tag);
         return await _context.SaveChangesAsync() > 0;
     }
 }

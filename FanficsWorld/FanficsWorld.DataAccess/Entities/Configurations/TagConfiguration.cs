@@ -12,6 +12,10 @@ namespace FanficsWorld.DataAccess.Entities.Configurations
             builder.Property(x => x.Name)
                 .IsRequired()
                 .HasMaxLength(50);
+
+            builder.Property(t => t.IsDeleted)
+                .IsRequired()
+                .HasDefaultValue(false);
         }
     }
 }

@@ -40,6 +40,7 @@ public class TagController : ControllerBase
 
     [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(TagWithFanficsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetTagWithFanfics(long id)
     {
         var tag = await _service.GetFullByIdAsync(id);
@@ -69,5 +70,17 @@ public class TagController : ControllerBase
         return creationResult.IsSuccess
             ? StatusCode(201)
             : BadRequest(creationResult);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id:long}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ServiceResultDto), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteTag(long id)
+    {
+        var deleteResult = await _service.DeleteAsync(id);
+        return deleteResult.IsSuccess
+            ? NoContent()
+            : BadRequest(deleteResult);
     }
 }

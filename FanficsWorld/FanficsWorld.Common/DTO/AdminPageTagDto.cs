@@ -6,5 +6,7 @@ public class AdminPageTagDto
     
     public string Name { get; set; }
     
+    public bool IsDeleted { get; set; }
+    
     public int FanficsCount { get; set; }
 }
