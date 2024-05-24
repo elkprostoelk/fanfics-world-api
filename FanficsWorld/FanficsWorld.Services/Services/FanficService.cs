@@ -8,6 +8,7 @@ using Ganss.Xss;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Linq.Expressions;
+using AutoMapper.QueryableExtensions;
 using Microsoft.Extensions.Logging;
 
 namespace FanficsWorld.Services.Services;
@@ -190,7 +191,10 @@ public class FanficService : IFanficService
             .ToList();
         var missingTagIds = editFanficDto.TagIds.Except(commonTagIds).ToList();
         var tagIdsToRemove = fanfic.Tags.Select(c => c.Id).Except(commonTagIds).ToList();
-        missingTagIds.ForEach(missingId => fanfic.FanficTags.Add(new FanficTag {TagId = missingId, FanficId = fanfic.Id}));
+        foreach (var missingId in missingTagIds)
+        {
+            fanfic.FanficTags.Add(new FanficTag { TagId = missingId, FanficId = fanfic.Id });
+        }
         fanfic.FanficTags.RemoveAll(ft => tagIdsToRemove.Contains(ft.TagId));
     }
 
@@ -203,7 +207,10 @@ public class FanficService : IFanficService
             .ToList();
         var missingFandomIds = editFanficDto.FandomIds.Except(commonFandomIds).ToList();
         var fandomIdsToRemove = fanfic.Fandoms.Select(c => c.Id).Except(commonFandomIds).ToList();
-        missingFandomIds.ForEach(missingId => fanfic.FanficFandoms.Add(new FanficFandom {FandomId = missingId, FanficId = fanfic.Id}));
+        foreach (var missingId in missingFandomIds)
+        {
+            fanfic.FanficFandoms.Add(new FanficFandom { FandomId = missingId, FanficId = fanfic.Id });
+        }
         fanfic.FanficFandoms.RemoveAll(ff => fandomIdsToRemove.Contains(ff.FandomId));
     }
 
@@ -216,7 +223,10 @@ public class FanficService : IFanficService
             .ToList();
         var missingCoauthorIds = editFanficDto.CoauthorIds.Except(commonCoauthorIds).ToList();
         var coauthorIdsToRemove = fanfic.Coauthors.Select(c => c.Id).Except(commonCoauthorIds).ToList();
-        missingCoauthorIds.ForEach(missingId => fanfic.FanficCoauthors.Add(new FanficCoauthor {CoauthorId = missingId, FanficId = fanfic.Id}));
+        foreach (var missingId in missingCoauthorIds)
+        {
+            fanfic.FanficCoauthors.Add(new FanficCoauthor { CoauthorId = missingId, FanficId = fanfic.Id });
+        }
         fanfic.FanficCoauthors.RemoveAll(fc => coauthorIdsToRemove.Contains(fc.CoauthorId));
     }
 
@@ -238,8 +248,9 @@ public class FanficService : IFanficService
         var totalItemsCount = await fanficsQuery.CountAsync();
         fanficsQuery = ApplyPaging(fanficsQuery, searchFanficsDto);
 
-        var pageList = await fanficsQuery.ToListAsync();
-        var dtoList = _mapper.Map<List<SimpleFanficDto>>(pageList);
+        var dtoList = await fanficsQuery
+            .ProjectTo<SimpleFanficDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
         var pagesCount = Convert.ToInt32(Math.Ceiling(totalItemsCount / (double)searchFanficsDto.ItemsPerPage));
 
         return new ServicePagedResultDto<SimpleFanficDto>
