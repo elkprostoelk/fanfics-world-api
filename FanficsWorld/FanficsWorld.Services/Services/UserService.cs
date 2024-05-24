@@ -274,7 +274,8 @@ public class UserService : IUserService
         var claims = new List<Claim>
         {
             new (ClaimTypes.NameIdentifier, user.Id),
-            new (ClaimTypes.Name, user.UserName!)
+            new (ClaimTypes.Name, user.UserName!),
+            new (ClaimTypes.DateOfBirth, user.DateOfBirth.ToString())
         };
         var roles = await _repository.GetRolesAsync(user);
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
