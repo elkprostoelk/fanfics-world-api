@@ -1,10 +1,4 @@
-﻿using FanficsWorld.Common.Configurations;
-using FanficsWorld.DataAccess;
-using FanficsWorld.Services.Interfaces;
-using FanficsWorld.Services.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using FanficsWorld.Services.Interfaces;
 using Quartz;
 
 namespace FanficsWorld.Services.Jobs;
