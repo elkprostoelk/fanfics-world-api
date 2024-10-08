@@ -26,6 +26,20 @@ jobs:
     - name: Build
       working-directory: FanficsWorld
       run: dotnet build FanficsWorld.sln --no-restore
-    - name: Test
-      working-directory: FanficsWorld
-      run: dotnet test FanficsWorld.sln --no-build --verbosity normal
+  
+  test:
+  
+      runs-on: ubuntu-latest
+  
+      steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore dependencies
+        working-directory: FanficsWorld
+        run: dotnet restore FanficsWorld.sln
+      - name: Test
+        working-directory: FanficsWorld
+        run: dotnet test FanficsWorld.sln --no-build --verbosity normal
